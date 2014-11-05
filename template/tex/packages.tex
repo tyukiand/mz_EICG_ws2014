@@ -1,0 +1,37 @@
+\usepackage{amsmath}	  % required for math in general
+\usepackage{amsthm}     % environments for theorems, qed's etc
+                        % (loaded after amsmath)
+\usepackage{amssymb}	  % doublestroke symbols, other mathematical symbols
+\usepackage{dsfont}     % required for double-stroke 1 as characteristic function
+\usepackage{array}	    % control of matrices and tables
+\usepackage{graphicx}   % images
+
+\usepackage{enumitem}   % more fine-grained control over enumerations
+\setdescription{leftmargin=\parindent,labelindent=\parindent}
+
+\usepackage{listings} % code listings
+\lstset{basicstyle=\ttfamily\scriptsize}
+
+% \input{diagrams.sty} (no category theory this time)
+
+\usepackage{helvet}   % use (much fresher looking) helvetica for everything
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage[weather]{ifsym}      % \Lightning symbol
+% \usepackage{mathabx}             % \Asterisk causes some conflicts
+
+% forcing the fucking floats to stop fucking floating like a fucking piece of
+% shit in an ocean of fucking shit
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\textfraction}{.15}
+\renewcommand{\floatpagefraction}{.66}
+\renewcommand{\dbltopfraction}{.66}
+
+% making all references into hyperlinks
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,pdfborderstyle={/W 0}}
+
+\usepackage{anyfontsize}

@@ -1,0 +1,3 @@
+buildDate=$(date +"%Y-%m-%d")
+sed -i "s/BUILDDATE/$buildDate/g" exercise_EXERCISENUMBER.tex
+pdflatex -halt-on-error exercise_EXERCISENUMBER.tex
