@@ -1,0 +1,184 @@
+% forall
+\let\oldforall\forall
+\renewcommand{\forall}{\oldforall\,}
+
+% parentheses
+\newcommand{\rPar}[1]{\left(#1\right)} % round parens
+\newcommand{\sPar}[1]{\left[#1\right]} % square parens
+\newcommand{\cPar}[1]{\left\{#1\right\}} % curved parens 
+\newcommand{\aPar}[1]{\left\langle #1 \right\rangle} % angle brackets
+
+% floor and ceiling
+\newcommand{\floor}[1]{{\left\lfloor#1\right\rfloor}} % curved parens 
+\newcommand{\ceil}[1]{{\left\lceil#1\right\rceil}} % curved parens 
+
+% norms
+\newcommand{\abs}[1]{\left\lvert #1\right\rvert}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\scalar}[2]{\left\langle#1,#2\right\rangle}
+\newcommand{\cross}{\times}
+\DeclareMathOperator{\diam}{diam}
+\DeclareMathOperator{\B}{B}
+
+% intervals
+\newcommand{\openOpenInterval}[2]{{\left(#1,#2\right)}}
+\newcommand{\openClosedInterval}[2]{{\left(#1,#2\right]}}
+\newcommand{\closedOpenInterval}[2]{{\left[#1,#2\right)}}
+\newcommand{\closedClosedInterval}[2]{{\left[#1,#2\right]}}
+
+% restriction of functions
+\newcommand{\restrict}[2]{{\left.#1\right\vert_{#2}}}
+
+% numbers
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Integer}{\mathbb{Z}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Rational}{\mathbb{Q}}
+\newcommand{\PositiveReal}{\Real_{>0}}
+\newcommand{\NonnegativeReal}{\Real_{\geq0}}
+\newcommand{\Complex}{\mathbb{C}}
+\renewcommand{\i}{i}
+\newcommand{\Quaternion}{\mathbb{H}}
+\newcommand{\Boolean}{\mathbb{B}}
+
+% function spaces
+\newcommand{\SemiLebesgue}{\mathscr{L}}
+\newcommand{\Continuous}{C}
+\newcommand{\Lebesgue}{L}
+\newcommand{\Sobolev}{H}
+\newcommand{\Hilbert}{\mathscr{H}}
+\newcommand{\Schwarz}{\mathscr{S}}
+
+% set
+\newcommand{\setPredicate}[2]{{\left\{#1\,\left\vert\, #2\right.\right\}}}
+\newcommand{\set}[1]{{\left\{#1\right\}}}
+\newcommand{\cardinality}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\powerset}[1]{\mathfrak{P}\left(#1\right)}
+\DeclareMathOperator*{\intersection}{\bigcap}
+\DeclareMathOperator*{\union}{\bigcup}
+\newcommand{\disjointUnion}{\biguplus}
+\renewcommand{\complement}[1]{#1^c}
+% \newcommand{\setminus}{\backslash}
+\newcommand{\injective}{\hookrightarrow}
+\newcommand{\surjective}{\twoheadrightarrow}
+%\DeclareMathOperator{\ker}{ker} % already exists... im does not?
+\DeclareMathOperator{\im}{im}
+
+% topological operators
+\DeclareMathOperator{\Cl}{Cl}
+\newcommand{\Closure}[2]{\Cl_{#1}\left(#2\right)}
+\DeclareMathOperator{\const}{const}
+
+% span and conv
+\DeclareMathOperator*{\conv}{conv}
+\DeclareMathOperator*{\linhull}{span}
+
+% matrices
+\newcommand{\mat}[2]{\left[\begin{array}{#1}#2\end{array}\right]}
+\DeclareMathOperator*{\diag}{diag}
+
+% landau symbols
+\newcommand{\LandauO}[1]{\mathcal{O}\left(#1\right)}
+
+% derivatives
+\newcommand{\dd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\differential}[1]{\boldsymbol{D}_{#1}}
+
+% integrals
+\renewcommand{\d}{\quad\mathrm{d}}
+
+% characteristic functions, expected values, variances, covariances
+% stochastic stuff
+\newcommand{\one}[1]{\mathds{1}_{#1}}
+\newcommand{\weakconv}[1]{\overset{#1}{\Longrightarrow}}
+\newcommand{\wlim}{\mathop{\mathrm{wlim}}}
+\newcommand{\vlim}{\mathop{\mathrm{vlim}}}
+
+% lim inf lim sup
+% \DeclareMathOperator{\liminf}{lim inf}
+% \DeclareMathOperator{\limsup}{lim sup}
+
+% qed etc.
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\newcommand{\result}{\hfill $\Diamond$}
+
+% lattices
+\newcommand{\meet}{\wedge}
+\newcommand{\join}{\vee}
+\newcommand{\negate}{\neg}
+
+% listings: Scala
+\lstdefinelanguage{scala}{
+  morekeywords={abstract,case,catch,class,def,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+\lstset{showstringspaces=false}
+
+% making references look a little nices
+\let\oldRef\ref
+\renewcommand{\ref}[1]{(\oldRef{#1})}
+
+% weird stuff for computer science
+\DeclareMathOperator{\arity}{ar}
+
+% cat, category theory
+% Bunch of categories
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Top}{Top}
+\DeclareMathOperator{\hTop}{h-Top}
+\DeclareMathOperator{\Sets}{Sets}
+\DeclareMathOperator{\Rel}{Rel}
+\DeclareMathOperator{\FinSets}{FinSets}
+\DeclareMathOperator{\Grp}{Grp}
+\DeclareMathOperator{\Cat}{Cat}
+\DeclareMathOperator{\Grpd}{Grpd}
+\newcommand{\cat}[1]{\mathcal{#1}}
+\newcommand{\Obj}{\mathrm{Obj}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\nat}{\xrightarrow{\bullet}}
+\newcommand{\iso}{\cong}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\cod}{\mathrm{cod}}
+\DeclareMathOperator{\coeq}{Coeq}
+\newcommand{\fst}{\mathrm{fst}}
+\newcommand{\snd}{\mathrm{snd}}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\End}{End}
+
+% functors frequently used in various contexts
+\DeclareMathOperator{\Free}{Free}
+\DeclareMathOperator{\Forget}{Forget}
+
+% empty set that is round
+\let\emptyset\varnothing
+
+% generated groups
+\newcommand{\gen}[1]{\left\langle#1\right\rangle}
+\newcommand{\normalSub}{\triangleleft}
+\newcommand{\Asterisk}{\mathop{\scalebox{1.5}{\raisebox{-0.2ex}{$\ast$}}}}
+\newcommand{\Sym}{\mathrm{Sym}}
+
+% argmax argmin argsup etc.
+\DeclareMathOperator{\argsup}{argsup}
+
+% number theoretic operators
+\DeclareMathOperator{\lcm}{lcm}
+
+% get rid of the ugly-looking "epsilon"
+\renewcommand{\epsilon}{\varepsilon}
+
+% get rid of the empty-looking "angle"
+\renewcommand{\angle}{\measuredangle}

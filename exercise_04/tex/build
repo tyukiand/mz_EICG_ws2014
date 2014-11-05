@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Writes the date and builds the .pdf
+#
+# (yes, one could write the date using pure LaTeX somehow,
+#  but I found it so utterly retarded, that it seemed easier
+#  to plug in a value produced by a separate script)
+date +"%Y-%m-%d" > currentDate.txt
+pdflatex -halt-on-error exercise_04.tex
+rm currentDate.txt
