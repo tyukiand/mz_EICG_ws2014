@@ -4,3 +4,7 @@
 *.aux
 *.out
 template/tex/exercise_EXERCISENUMBER.pdf
+*.o
+Makefile
+moc_*
+exercise_02/code/Lizard
