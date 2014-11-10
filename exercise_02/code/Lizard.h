@@ -64,6 +64,9 @@ private:
         double lastX;
         double lastY;
         bool lastClickInside;
+        // coordinates of last mouse move event
+        int x;
+        int y;
 };
 #endif
 	

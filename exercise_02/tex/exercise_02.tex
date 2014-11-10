@@ -14,106 +14,33 @@
 
 \noindent\hrulefill
 
-\exercise{1.1}{Text with a bunch of funny formulas}
-
-Let $a\in\Real^3$ arbitrary, and let $[a]_\cross$ denote the matrix that
-corresponds to the cross product with $a$ from the left:
+\exercise{2.2}{Rescaling around a fixed point}
+Let $c\in\Real^2$ be a center, $z\in(0,\infty)$ a zoom factor and
+$dz\in(0,\infty)$ a zoom scale factor.
+All the points are transformed from world coordinates to screen coordinates
+before rendering in the following way:
 \[
-  [a]_\cross := \mat{ccc}{
-    0    & -a_3 & a_1 \\
-    a_3  & 0    & -a_2 \\
-    -a_1 & a_2  & 0
-  }.
+  v^\prime = z(v - c).
 \]
-It then holds: 
+Now we assume that we have a screen point $p^\prime$ with world coordinates
+$p$ and want to keep it fixed when changing the zoom factor from $z$ to
+$dz\cdot z$.
+That means, we have two equations:
+\begin{align*}
+   p^\prime &= z (p - c) \\
+   p^\prime &= (dz \cdot z) (p - c^\prime),
+\end{align*}
+where $c^\prime$ is the new center. Resolving for $c^\prime$ gives us:
 \[
-  \exp([a]_\cross) = R_{\frac{a}{\norm{a}}}{\norm{a}},
+  c^\prime = p - (p-c)/dz.
 \]
-where $R_{z,\phi}$ is the rotation matrix
-around the axis $z$ by the angle $\phi$.
-
-\proof Observe that all powers of $[a]_\cross$ can be 
-expressed in terms of $[a]_\cross$ and $[a]_\cross^2$, 
-more precisely, it holds (by the Grassmann-Identity):
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us explicit formulas for all nonnegative powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-We have already shown that the last expression is exactly the 
-rotation matrix $R_{\frac{a}{\norm{a}}}{\norm{a}}$, 
-this concludes the proof.  \hfill\qed
-
-\exercise{1.2}{A funny image}
-Here you can see an example of an image.
-\begin{figure}[htbp]
-  \centering\includegraphics[width=0.5\linewidth]{images/exampleImage.png}
-\end{figure}
-And here is some more text:
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us similar expressions for all positive powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-Blah blah blah...
-
-\exercise{1.3}{Code-examples}
-Here is how one can include formatted code:
-\begin{lstlisting}
-  ...
-  void main(void) {
-    cout << "blah";
-  }
-\end{lstlisting}
-You might also find \verb|\lstinputlisting[firstline=n,lastline=m]| useful.
+In code, this looks as follows
+\footnote{
+  Unfortunately, it works only if one \emph{drags} the mouse,
+  there is no reaction if the mouse \emph{moves}. It's not clear whether
+  it has something to do with exotic window managers or something else.
+  However, it's just an annoying QT problem, it has nothing to do with 
+  geometry or graphics.
+}:
+\lstinputlisting[firstline=318,lastline=329]{../code/Lizard.cpp}
 \end{document}
