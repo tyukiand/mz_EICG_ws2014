@@ -316,7 +316,15 @@ void CGView::mouseReleaseEvent (QMouseEvent* event) {
 }
 
 void CGView::wheelEvent(QWheelEvent* event) {
-	if (event->delta() < 0) zoom *= 1.1; else zoom *= 1/1.1;
+        double dz = 1.0;
+	if (event->delta() < 0) dz = 1.1; else dz = 1/1.1;
+        // Let `x`, `y` be screen coordinates of last mouse move event, 
+        // then `px` and `py` are world coordinates of `p`
+        double px, py;
+        worldCoord(x, y, px, py);
+        centerX = px - (px - centerX) / dz;
+        centerY = py - (py - centerY) / dz;
+        zoom *= dz;
 	update();
 }
 
@@ -324,8 +332,9 @@ void CGView::mouseMoveEvent (QMouseEvent* event) {
 	QPoint current = event->pos();
 	std::cout << "Mouse moved" << std::endl;
 
-	int x = current.x();
-	int y = current.y();
+	x = current.x();
+	y = current.y();
+        std::cout << "set to: " << x << "," << y << std::endl;
 	if (event->button() == Qt::LeftButton)
 		updateGL();
 }
