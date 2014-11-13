@@ -1,1 +1,9 @@
-Please write in this file on what you are actual working to prevent us from doing something twice.
+Please write in this file what you are currently working on in order to 
+prevent us from doing something twice.
+
+Format:
+YYYY-mm-dd HH:MM [<name>] Message
+
+--------------------------------------------------------------------------------
+
+2014-11-13 12:15 [tyukiand] Started the 3.2 (texture-mapping), looks funny. Poor esher^^
