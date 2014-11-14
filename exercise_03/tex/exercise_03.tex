@@ -14,60 +14,85 @@
 
 \noindent\hrulefill
 
-\exercise{1.1}{Text with a bunch of funny formulas}
+\exercise{3.2}{Texture mapping}
+The implementation of parts 3.2 (a-e) can be seen in the code, 
+the main functionality is focused in the constructor of \verb|CGView|
+where the texture coordinates are generated, and in \verb|CGView::paintGL|,
+where the grid is rendered. Notice that we slightly modified the task:
+we decided to render an almost-transparent version of the image in the 
+background when the grid-mode is activated. Furthermore we avoided the
+usage of deprecated \verb|GL_QUADS|, and instead achieved the same 
+functionality by using simple lines and triangles.
 
-Let $a\in\Real^3$ arbitrary, and let $[a]_\cross$ denote the matrix that
-corresponds to the cross product with $a$ from the left:
-\[
-  [a]_\cross := \mat{ccc}{
-    0    & -a_3 & a_1 \\
-    a_3  & 0    & -a_2 \\
-    -a_1 & a_2  & 0
-  }.
-\]
-It then holds: 
-\[
-  \exp([a]_\cross) = R_{\frac{a}{\norm{a}}}{\norm{a}},
-\]
-where $R_{z,\phi}$ is the rotation matrix
-around the axis $z$ by the angle $\phi$.
+For the part (f) we need to find a suitable diffeomorphism $\Psi_{r, \alpha}$ 
+of a disk $D_r$ of the radius $r$ into itself in order to implement 
+local inflation/deflation of the image. 
+We decided to compose 
+$\Psi_{r, \alpha}$ out of three functions. 
+First, consider the following diffeomorphism between the
+disk $D_r$ and the whole plane $\Real^2$ (or $\Real^n$, the dimension doesn't 
+matter here):
+\begin{align*}
+  \phi_r: \Real^2 \to D_r       \qquad & \phi_r(x) := \frac{rx}{1 + \norm{x}} \\
+  \phi_r^{-1}:  D_r \to \Real^2 \qquad & \phi_r^{-1}(x)  := \frac{x}{r - \norm{x}}.
+\end{align*}
+This diffeomorphism allows us to go from disk to the plane and back.
+Since the plane carries a vector space structure, the \emph{scaling} operation
+makes sense there. So we just go from disk to the plane, scale all points by
+some fixed factor $\alpha$ and then go back to the disk:
+\begin{align*}
+  \Psi_{r, \alpha} & := \phi_r\circ(\alpha \cdot -) \circ \phi_r^{-1}.
+\end{align*}
+For the last part of the whole exercise, we will need the inverse of $\Psi_{r, \alpha}$,
+this is obviously given by an analogous operation, 
+but this time we scale with $\alpha^{-1}$, that is:
+\begin{align*}
+  \Psi_{r, \alpha}^{-1} = \Psi_{r, \alpha^{-1}}.
+\end{align*}
+We have included a possibility to change the brush size with ``+'' and ``-'', as
+well as to reset the resulting mess with \verb|Ctrl+R|.
+The inflation/deflation effect is demonstrated on the portrait of Escher.
 
-\proof Observe that all powers of $[a]_\cross$ can be 
-expressed in terms of $[a]_\cross$ and $[a]_\cross^2$, 
-more precisely, it holds (by the Grassmann-Identity):
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us explicit formulas for all nonnegative powers:
+\begin{minipage}[t]{0.45\linewidth}
+  \centering\includegraphics[width=0.98\linewidth]{images/escherOriginal.png}
+  \captionof{figure}{
+    Original portrait of Maurits Cornelis Escher with a grid showing the
+    subdivision into small polygons.
+  }
+  \label{originalEscher}
+\end{minipage}
+\hspace{0.1\linewidth}
+\begin{minipage}[t]{0.45\linewidth}
+  \centering\includegraphics[width=0.98\linewidth]{images/escherWarped.png}
+  \captionof{figure}{
+    Locally warped portrait of Escher, producing a ``fish-eye'' effect.
+  }
+  \label{warpedEscher}
+\end{minipage}
+
+For the deformation in (h-i), we decided to use the distance in texture coordinates,
+not in world-coordinates. 
+This has the effect that the whole grid behaves more like a sheet of elastic
+material, and less like a lump of some very viscous sticky liquid. 
+In particular, clicking in $y$ and
+dragging to $x$ produces the inverse transformation of clicking in $x$ and then 
+dragging to $y$. In contrast, if one uses the distance in world-coordinates, then two
+points that once overlap (i.e. have the same world coordinates) can not be separated again.
+
+The distance is computed as
 \[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
+  r := \frac{2}{N} \sqrt{dr^2 + dc^2}  
 \]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-We have already shown that the last expression is exactly the 
-rotation matrix $R_{\frac{a}{\norm{a}}}{\norm{a}}$, 
-this concludes the proof.  \hfill\qed
+where $dr$ and $dc$ are integer \emph{index} differences of a grid vertex and the dragged vertex, 
+$2$ is the width of the originally rendered rectangle, and $N$ is the number of vertex points.
+Then we weight the offset of the picked point depending on the distance:
+\[
+  r \mapsto \exp\rPar{{-\frac{r^2}{\sigma^2}}}
+\]
+where we used the brush width as $\sigma$ to make the usage more or less intuitive.
+Escher seems happy with this choice of weighting weight function:
+
+\centering\includegraphics[width=0.49\linewidth]{images/escherSmile.png}
 
 \exercise{1.2}{A funny image}
 Here you can see an example of an image.

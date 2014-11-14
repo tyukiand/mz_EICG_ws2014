@@ -8,3 +8,5 @@ template/tex/exercise_EXERCISENUMBER.pdf
 Makefile
 moc_*
 exercise_02/code/Lizard
+exercise_03/code/**/Texture
+.qmake.stash
