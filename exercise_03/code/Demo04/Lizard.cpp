@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include "Lizard.h"
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -78,6 +79,10 @@ void CGMainWindow::loadPolygon() {
 			ogl->poly[i][3*j+1] = y;
 			ogl->poly[i][3*j+2] = 0.0;
 		}
+        //int transSize=(int)ogl->trans.size();
+        ogl->trans.resize(n);
+        //int centerSize=(int)ogl->center.size();
+        ogl->center.resize(n);
 	}
 	file.close();
 
@@ -94,17 +99,19 @@ void CGMainWindow::loadPolygon() {
 	
 	ogl->i_picked = 0;
 
-	// this is center of the polygon
-	ogl->center.resize(1);	
-	ogl->center[0].resize(2);	
-	ogl->center[0][0]=ogl->centerX;	
-	ogl->center[0][0]=ogl->centerY;	
 
-	ogl->trans.resize(1);
-	ogl->trans[0].resize(3);
-	ogl->trans[0][0] = 0; // x
-	ogl->trans[0][1] = 0; // y
-	ogl->trans[0][2] = 0; // phi
+    for(int i=0;i<(int) ogl->center.size();i++){
+    // this is center of ith polygon
+        ogl->center[i].resize(2);
+        ogl->center[i][0]=ogl->centerX;
+        ogl->center[i][0]=ogl->centerY;
+    }
+    for(int i=0;i<(int) ogl->trans.size();i++){
+        ogl->trans[i].resize(3);
+        ogl->trans[i][0] = 0; // x
+        ogl->trans[i][1] = 0; // y
+        ogl->trans[i][2] = 0; // phi
+     }
 
 	ogl->updateGL();
 	statusBar()->showMessage ("Loading polygon done.",3000);
@@ -113,45 +120,51 @@ void CGMainWindow::loadPolygon() {
 
 
 void CGMainWindow::duplicatePolygon() {
-				//duplicates the picked polygon and rotates the copy by
-				// 30 degree and translates it by 1 in x
-				for(int i=0;i<ogl->poly.size();i++){	
-								if(i==ogl->i_picked){
-												int N = ogl->poly.size();
-												ogl->poly.resize(N+1);
-												ogl->poly[N].resize(ogl->poly[i].size());
-												for (int j=0;j<ogl->poly[i].size();j++)
-																ogl->poly[N][j] = ogl->poly[i][j];
+        //duplicates the picked polygon and rotates the copy by
+        // 30 degree and translates it by 1 in x
+        for(int i=0;i<ogl->poly.size();i++){
+            if(i==ogl->i_picked){
+                int N = ogl->poly.size();
+                ogl->poly.resize(N+1);
+                ogl->poly[N].resize(ogl->poly[i].size());
+                for (int j=0;j<ogl->poly[i].size();j++)
+                                ogl->poly[N][j] = ogl->poly[i][j];
 
-												N = ogl->center.size(); 
-												ogl->center.resize(N+1);
-												ogl->center[N].resize(2);
-												ogl->center[N][0] = ogl->center[i][0]; 
-												ogl->center[N][1] = ogl->center[i][1]; 
+                N = ogl->center.size();
+                ogl->center.resize(N+1);
+                ogl->center[N].resize(2);
+                ogl->center[N][0] = ogl->center[i][0];
+                ogl->center[N][1] = ogl->center[i][1];
 
-												N = ogl->trans.size(); 
-												ogl->trans.resize(N+1);
-												ogl->trans[N].resize(3);
-												ogl->trans[N][0] = ogl->trans[i][0]+1.0;
-												ogl->trans[N][1] = ogl->trans[i][1]+1.0;
-												ogl->trans[N][2] = ogl->trans[i][2]+30;
-												ogl->i_picked = N;
-												break;
-								}
-				}
-		ogl->updateGL();	
+                N = ogl->trans.size();
+                ogl->trans.resize(N+1);
+                ogl->trans[N].resize(3);
+                ogl->trans[N][0] = ogl->trans[i][0]+1.0;
+                ogl->trans[N][1] = ogl->trans[i][1]+1.0;
+                ogl->trans[N][2] = ogl->trans[i][2]+30;
+                ogl->i_picked = N;
+                break;
+            }
+        }
+ogl->updateGL();
 }
+
 
 void CGMainWindow::keyPressEvent(QKeyEvent* event) {
 
 
-			// add your code to rotate the picked lizard
-				switch(event->key()) {
-								case Qt::Key_I: std::cout << "I" << std::flush; break;
-								case Qt::Key_M: std::cout << "M" << std::flush; break;
-				}
+    // add your code to rotate the picked lizard
+    double phi;
+    phi=30;
+    switch(event->key()) {
+            case Qt::Key_I: std::cout << "I" << std::flush; break;
+            case Qt::Key_M: std::cout << "M" << std::flush; break;
+            case Qt::Key_Q: ogl->trans[ogl->i_picked][2]=ogl->trans[ogl->i_picked][2]+phi; break;
+            case Qt::Key_W: ogl->trans[ogl->i_picked][2]=ogl->trans[ogl->i_picked][2]-phi; break;
 
-				ogl->updateGL();
+    }
+
+    ogl->updateGL();
 }
 
 
@@ -183,41 +196,44 @@ void CGView::initializeGL() {
 }
 
 void CGView::paintGL() {
-				glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
 
-				glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-				for(int i=0;i<(int) poly.size();i++) {
+    for(int i=0;i<(int) poly.size();i++) {
 
-								// View
-								glLoadIdentity();
-								glScaled(zoom,zoom,1.0);
-								glTranslated(-centerX,-centerY,0.0);
+            // View
+            glLoadIdentity();
+            glScaled(zoom,zoom,1.0);
+            glTranslated(-centerX,-centerY,0.0);
 
-								// Model
-								glTranslated(trans[i][0],trans[i][1],0);
-								glTranslated(center[i][0],center[i][1],0);
-								glRotated(trans[i][2],0,0,1);	
-								glTranslated(-center[i][0],-center[i][1],0);
-								glColor3f(0.0f,1.0f,0.0f);
-								if (i == i_picked)
-												glColor3f(1.0f,0.0f,0.0f);
+            // Model
+            glTranslated(trans[i][0],trans[i][1],0);
+            glTranslated(center[i][0],center[i][1],0);
+            glRotated(trans[i][2],0,0,1);
+            glTranslated(-center[i][0],-center[i][1],0);
+            glColor3f(0.0f,1.0f,0.0f);
+            if (i == i_picked)
+                glColor3f(1.0f,0.0f,0.0f);
 
-								// draw ith polygons interior
-								gluTessBeginPolygon(tobj,NULL);
-								gluTessBeginContour(tobj);
-								for(int j=0;j<(int) poly[i].size()/3;j++) 
-												gluTessVertex(tobj,&poly[i][3*j],&poly[i][3*j]);
-								gluTessEndContour(tobj);
-								gluTessEndPolygon(tobj);		
+            // draw ith polygons interior
+            gluTessBeginPolygon(tobj,NULL);
+            gluTessBeginContour(tobj);
+            for(int j=0;j<(int) poly[i].size()/3;j++)
+                            gluTessVertex(tobj,&poly[i][3*j],&poly[i][3*j]);
+            gluTessEndContour(tobj);
+            gluTessEndPolygon(tobj);
 
-								// draw ith polygons polyline
-								glColor3f(0.0f,0.0f,0.0f);
-								glBegin(GL_LINE_STRIP);
-								for(int j=0;j<(int) poly[i].size()/3;j++)
-												glVertex2d(poly[i][3*j+0],poly[i][3*j+1]);
-								glEnd();
-				}
+            // draw ith polygons polyline
+            glColor3f(0.0f,0.0f,0.0f);
+            glBegin(GL_LINE_STRIP);
+            for(int j=0;j<(int) poly[i].size()/3;j++){
+                double polyX=poly[i][3*j+0];
+                double polyy=poly[i][3*j+1];
+                glVertex2d(poly[i][3*j+0],poly[i][3*j+1]);
+             }
+            glEnd();
+    }
 }
 
 void CGView::resizeGL(int width, int height) {
@@ -249,21 +265,69 @@ void CGView::worldCoord(int x, int y, double &dx, double &dy) {
 				dy += centerY;
 }
 
+int CGView::intersect(
+  double px, double py,
+  double ax, double ay,
+  double bx, double by
+) {
 
+  // we use a macro, becase we do not want to evaluate this expression
+  // if it's not necessary, but we also do not want to write it out twice
+  // or introduce additional helper function.
+  #define DET bx * py - by * px - ax * py + ay * px - bx * ay + by * ax
+  return
+    (py <= ay && py > by && DET < 0) ||
+    (py > ay && py <= by && DET > 0);
+  #undef DET
+}
+
+bool CGView::insidePolygonI(int i,double px, double py) {
+  int numIntersections = 0; // collides with the required `intersect` method, renamed
+  for(int j=0;j<(int) poly[i].size()/3-1;j++){
+    int j3=3*j;
+    double polyX1,polyY1,polyX2,polyY2;
+    double phi=M_PI*trans[i][3]/180.0;
+    double cPhi=cos(phi);
+    double sPhi=sin(phi);
+    polyX1=cPhi*poly[i][j3]-sPhi*poly[i][j3+1]+cPhi*trans[i][0]-sPhi*trans[i][1];
+    polyY1=sPhi*poly[i][j3]+cPhi*poly[i][j3+1]+sPhi*trans[i][0]+cPhi*trans[i][1];
+    polyX2=cPhi*poly[i][j3+3]-sPhi*poly[i][j3+4]+cPhi*trans[i][0]-sPhi*trans[i][1];
+    polyY2=sPhi*poly[i][j3+3]+cPhi*poly[i][j3+4]+sPhi*trans[i][0]+cPhi*trans[i][1];
+    numIntersections += intersect(
+      px, py,
+      polyX1, polyY1,
+      polyX2, polyY2
+    );
+  }
+  return numIntersections % 2 == 1;
+}
 
 void CGView::mousePressEvent(QMouseEvent *event) {
-				double dx, dy;
-				worldCoord(event->x(),event->y(),dx,dy);
-				std::cout << "Mouse pressed at (" << dx << "," << dy <<")" << std::endl;
-
-
-			// add your intersect code here
-			// also set the new i_picked 
+        double dx, dy,px,py;
+        worldCoord(event->x(),event->y(),dx,dy);
+        std::cout << "Mouse pressed at (" << dx << "," << dy <<")" << std::endl;
+        px=dx;
+        py=dy;
+        bool inI;
+        if(event->button() == Qt::LeftButton)
+            clicked=true;
+        QPoint clickedPoint = event->pos();
+    // add your intersect code here
+    // also set the new i_picked
+        for(int i=0;i<poly.size();i++){
+            inI=insidePolygonI(i,px,py);
+            if(inI)
+                i_picked=i;
+                //i_picked=5;
+        }
+        update();
 
 }
 
 void CGView::mouseReleaseEvent (QMouseEvent* event) {
 				std::cout << "Mouse released" << std::endl;
+                if(event->button() == Qt::LeftButton)
+                    clicked=false;
 }
 
 void CGView::wheelEvent(QWheelEvent* event) {
@@ -273,17 +337,31 @@ void CGView::wheelEvent(QWheelEvent* event) {
 
 void CGView::mouseMoveEvent (QMouseEvent* event) {
 				QPoint current = event->pos();
-				std::cout << "Mouse moved" << std::endl;
+                std::cout << "Mouse moved" << std::endl;
 
 				int x = current.x();
-				int y = current.y();
+                int y = current.y();
+                int xClick=clickedPoint.x();
+                int yclick=clickedPoint.y();
+
+                double diffX,diffY;
+                double dx,dy,dxClick,dyClick;
+                worldCoord(x,y,dx,dy);
+                worldCoord(xClick,yclick,dxClick,dyClick);
+                diffX=dx-center[i_picked][0];
+                diffY=dy-center[i_picked][1];
 
 				// add code here to move the picked lizard
-		
 
-				if (event->button() == Qt::LeftButton)
-								updateGL();
+                trans[i_picked][0]=diffX;
+                trans[i_picked][1]=diffY;
+
+                //if (event->button() == Qt::LeftButton)
+                if(clicked)
+                                updateGL();
 }
+
+
 
 int main (int argc, char **argv) {
 				QApplication app(argc, argv);

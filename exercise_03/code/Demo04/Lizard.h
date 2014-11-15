@@ -63,8 +63,21 @@ protected:
 	void mouseReleaseEvent(QMouseEvent*);
 	void wheelEvent(QWheelEvent*);
 
+
 	CGMainWindow *main;
 	GLUtriangulatorObj* tobj;
+
+private:
+        int intersect(double px, double py, double ax, double ay, double bx, double by);
+        bool insidePolygonI(int i,double px, double py);
+        double lastX;
+        double lastY;
+        bool lastClickInside;
+        bool clicked;
+        QPoint clickedPoint;
+        // coordinates of last mouse move event
+        int x;
+        int y;
 };
 #endif
 
