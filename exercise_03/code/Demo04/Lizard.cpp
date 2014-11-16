@@ -228,11 +228,16 @@ void CGView::paintGL() {
             glColor3f(0.0f,0.0f,0.0f);
             glBegin(GL_LINE_STRIP);
             for(int j=0;j<(int) poly[i].size()/3;j++){
+
                 double polyX=poly[i][3*j+0];
                 double polyy=poly[i][3*j+1];
                 glVertex2d(poly[i][3*j+0],poly[i][3*j+1]);
-             }
+
+            }
+            if ((int) poly[i].size()/3>0)
+                glVertex2d(poly[i][0],poly[i][1]);
             glEnd();
+
     }
 }
 
@@ -311,14 +316,18 @@ void CGView::mousePressEvent(QMouseEvent *event) {
         bool inI;
         if(event->button() == Qt::LeftButton)
             clicked=true;
-        QPoint clickedPoint = event->pos();
+        clickedPoint = event->pos();
     // add your intersect code here
     // also set the new i_picked
         for(int i=0;i<poly.size();i++){
             inI=insidePolygonI(i,px,py);
-            if(inI)
+            if(inI){
                 i_picked=i;
-                //i_picked=5;
+                std::cout << "Polygon " << i << " selected" << std::endl;
+                clickedPolyTrans.clear();
+                clickedPolyTrans.push_back(trans[i_picked][0]);
+                clickedPolyTrans.push_back(trans[i_picked][1]);
+            }
         }
         update();
 
@@ -331,34 +340,37 @@ void CGView::mouseReleaseEvent (QMouseEvent* event) {
 }
 
 void CGView::wheelEvent(QWheelEvent* event) {
-				if (event->delta() < 0) zoom *= 1.1; else zoom *= 1/1.1;
+                if (event->delta() < 0) zoom *= 1.1; else zoom *= 1/1.1;
 				update();
 }
 
 void CGView::mouseMoveEvent (QMouseEvent* event) {
 				QPoint current = event->pos();
-                std::cout << "Mouse moved" << std::endl;
+
 
 				int x = current.x();
                 int y = current.y();
                 int xClick=clickedPoint.x();
-                int yclick=clickedPoint.y();
+                int yClick=clickedPoint.y();
 
                 double diffX,diffY;
                 double dx,dy,dxClick,dyClick;
                 worldCoord(x,y,dx,dy);
-                worldCoord(xClick,yclick,dxClick,dyClick);
-                diffX=dx-center[i_picked][0];
-                diffY=dy-center[i_picked][1];
+                worldCoord(xClick,yClick,dxClick,dyClick);
+                diffX=dx-dxClick;
+                diffY=dy-dyClick;
 
 				// add code here to move the picked lizard
 
-                trans[i_picked][0]=diffX;
-                trans[i_picked][1]=diffY;
+                trans[i_picked][0]=clickedPolyTrans[0]+diffX;
+                trans[i_picked][1]=clickedPolyTrans[1]+diffY;
 
                 //if (event->button() == Qt::LeftButton)
+
+                std::cout << "clickedPoint (" << diffX << "," << diffY << "," << dxClick << "," << dyClick << ")" << std::endl;
+
                 if(clicked)
-                                updateGL();
+                    updateGL();
 }
 
 

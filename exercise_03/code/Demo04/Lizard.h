@@ -75,6 +75,7 @@ private:
         bool lastClickInside;
         bool clicked;
         QPoint clickedPoint;
+        std::vector<double> clickedPolyTrans;
         // coordinates of last mouse move event
         int x;
         int y;
