@@ -288,21 +288,28 @@ int CGView::intersect(
 
 bool CGView::insidePolygonI(int i,double px, double py) {
   int numIntersections = 0; // collides with the required `intersect` method, renamed
+  double xLast,yLast;//first and last point of polygon
   for(int j=0;j<(int) poly[i].size()/3-1;j++){
     int j3=3*j;
     double polyX1,polyY1,polyX2,polyY2;
     double phi=M_PI*trans[i][3]/180.0;
     double cPhi=cos(phi);
     double sPhi=sin(phi);
-    polyX1=cPhi*poly[i][j3]-sPhi*poly[i][j3+1]+cPhi*trans[i][0]-sPhi*trans[i][1];
-    polyY1=sPhi*poly[i][j3]+cPhi*poly[i][j3+1]+sPhi*trans[i][0]+cPhi*trans[i][1];
-    polyX2=cPhi*poly[i][j3+3]-sPhi*poly[i][j3+4]+cPhi*trans[i][0]-sPhi*trans[i][1];
-    polyY2=sPhi*poly[i][j3+3]+cPhi*poly[i][j3+4]+sPhi*trans[i][0]+cPhi*trans[i][1];
+    polyX1=cPhi*poly[i][j3]-sPhi*poly[i][j3+1]+trans[i][0];
+    polyY1=sPhi*poly[i][j3]+cPhi*poly[i][j3+1]+trans[i][1];
+    polyX2=cPhi*poly[i][j3+3]-sPhi*poly[i][j3+4]+trans[i][0];
+    polyY2=sPhi*poly[i][j3+3]+cPhi*poly[i][j3+4]+trans[i][1];
     numIntersections += intersect(
       px, py,
       polyX1, polyY1,
       polyX2, polyY2
     );
+    if(j==(int) poly[i].size()/3-2){
+        xLast=poly[i][j3+3];
+        yLast=poly[i][j3+4];
+        if((xLast!=poly[i][0])||(yLast!=poly[i][1]))//if polygon isn't closed(last point=first point) in .pol last insect comparison
+           numIntersections+=intersect(px,py,xLast,yLast,poly[i][0],poly[i][1]);
+    }
   }
   return numIntersections % 2 == 1;
 }
