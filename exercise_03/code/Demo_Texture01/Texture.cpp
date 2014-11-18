@@ -29,6 +29,9 @@ CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
 	QMenu *file = new QMenu("&File",this);
 	file->addAction ("Load picture", this, SLOT(loadPicture()), Qt::CTRL+Qt::Key_L);
 	file->addAction ("Quit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);
+
+    // Notice that we have added a bunch of additional commands here that
+    // were not explicitly required. Ctrl+R is such an example.
     file->addAction ("Show grid", this, SLOT(showGrid()), Qt::CTRL+Qt::Key_G);
     file->addAction ("Larger brush", this, SLOT(largerBrush()), Qt::Key_Plus);
     file->addAction ("Smaller brush", this, SLOT(smallerBrush()), Qt::Key_Minus);
@@ -368,13 +371,12 @@ void CGView::pick(int px, int py, int &pickedRow, int &pickedCol) {
   	for (col = 0; col < N; col++) {
   	  dx = grid[row][col][0] - x;
   	  dy = grid[row][col][1] - y;
-      r = hypot(dx, dy);
-      if (r < minDist) {
-      	std::cout << "dist at " << row << ", " << col << " : " << r << std::endl;
-      	minDist = r;
-      	bestRow = row;
-      	bestCol = col;
-      }
+          r = hypot(dx, dy);
+          if (r < minDist) {
+          	minDist = r;
+          	bestRow = row;
+          	bestCol = col;
+          }
   	}
   }
   std::cout << "Picked: row = " << bestRow << " col = " << bestCol << std::endl;

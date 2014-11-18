@@ -14,6 +14,9 @@
 
 \noindent\hrulefill
 
+\exercise{3.1}{Polygon picking and snapping}
+(Possibly other group members want to submit something on a sheet of paper?)
+
 \exercise{3.2}{Texture mapping}
 The implementation of parts 3.2 (a-e) can be seen in the code, 
 the main functionality is focused in the constructor of \verb|CGView|
@@ -90,55 +93,8 @@ Then we weight the offset of the picked point depending on the distance:
   r \mapsto \exp\rPar{{-\frac{r^2}{\sigma^2}}}
 \]
 where we used the brush width as $\sigma$ to make the usage more or less intuitive.
-Escher seems happy with this choice of weighting weight function:
+Escher seems happy with this choice of the weight function:
 
 \centering\includegraphics[width=0.49\linewidth]{images/escherSmile.png}
 
-\exercise{1.2}{A funny image}
-Here you can see an example of an image.
-\begin{figure}[htbp]
-  \centering\includegraphics[width=0.5\linewidth]{images/exampleImage.png}
-\end{figure}
-And here is some more text:
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us similar expressions for all positive powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-Blah blah blah...
-
-\exercise{1.3}{Code-examples}
-Here is how one can include formatted code:
-\begin{lstlisting}
-  ...
-  void main(void) {
-    cout << "blah";
-  }
-\end{lstlisting}
-You might also find \verb|\lstinputlisting[firstline=n,lastline=m]| useful.
 \end{document}
