@@ -29,9 +29,9 @@ CGMainWindow::CGMainWindow(QWidget *parent, Qt::WindowFlags flags)
     // Create a menu
     QMenu *file = new QMenu("&File", this);
     file->addAction(
-        "Load polygon", 
-        this, 
-        SLOT(loadPolygon()), 
+        "Load polygon",
+        this,
+        SLOT(loadPolygon()),
         Qt::CTRL + Qt::Key_L
     );
     file->addAction("Quit", qApp, SLOT(quit()), Qt::CTRL + Qt::Key_Q);
@@ -64,11 +64,11 @@ CGMainWindow::~CGMainWindow() { }
  */
 void CGMainWindow::loadPolygon() {
     QString fn = QFileDialog::getOpenFileName(
-        this, 
-        "Load polygon ...", 
-        QString(), 
-        "POL files (*.pol)"
-    );
+                     this,
+                     "Load polygon ...",
+                     QString(),
+                     "POL files (*.pol)"
+                 );
 
     if (fn.isEmpty()) return;
 
@@ -83,11 +83,13 @@ void CGMainWindow::loadPolygon() {
     ogl->poly.resize(n);
     ogl->trans.resize(n);
     ogl->center.resize(n);
+
     for (int i = 0; i < n; i++) {
         file >> m;
         ogl->poly[i].resize(3 * m);
         centerOfMassX = 0;
         centerOfMassY = 0;
+
         for (int j = 0; j < m; j++) {
             file >> x >> y;
 
@@ -106,14 +108,14 @@ void CGMainWindow::loadPolygon() {
 
             std::cout << "Prepare to write trans and center" << std::endl;
 
-            // note that we store the translation relative to 
-            // the original model coordinates of the polygon, 
+            // note that we store the translation relative to
+            // the original model coordinates of the polygon,
             // we do not move it to the center of mass
             ogl->trans[i].resize(3);
             ogl->trans[i][0] = 0;
             ogl->trans[i][1] = 0;
             ogl->trans[i][2] = 0;
-            
+
             ogl->center[i].resize(2);
             ogl->center[i][0] = centerOfMassX / m;
             ogl->center[i][1] = centerOfMassY / m;
@@ -137,12 +139,13 @@ void CGMainWindow::loadPolygon() {
 const double ANGLE_CHANGE = M_PI / 12;
 void CGMainWindow::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
-    case Qt::Key_Q: 
-      ogl->trans[ogl->i_picked][2] += ANGLE_CHANGE; 
-      break;
-    case Qt::Key_W: 
-      ogl->trans[ogl->i_picked][2] -= ANGLE_CHANGE;
-      break;
+    case Qt::Key_Q:
+        ogl->trans[ogl->i_picked][2] += ANGLE_CHANGE;
+        break;
+
+    case Qt::Key_W:
+        ogl->trans[ogl->i_picked][2] -= ANGLE_CHANGE;
+        break;
     }
 
     ogl->updateGL();
@@ -185,6 +188,7 @@ void CGView::paintGL() {
         if (i == i_picked) {
             glTranslated(snapProposalX, snapProposalY, 0);
         }
+
         glTranslated(trans[i][0], trans[i][1], 0);
         glTranslated(center[i][0], center[i][1], 0);
         glRotated(trans[i][2] * 180 / M_PI, 0, 0, 1);
@@ -249,101 +253,103 @@ void CGView::worldCoord(int x, int y, double &dx, double &dy) {
 /**
  * Tests whether a horizontal ray shot in the positive x-direction
  * from a start point `p` intersects a line segment from `a` to `b`.
- * 
+ *
  * @return 0 if no intersection, 1 otherwise
  */
 int CGView::intersect(
-  double px, double py,
-  double ax, double ay,
-  double bx, double by
-) { 
-  // we use a macro, becase we do not want to evaluate this expression 
-  // if it's not necessary, but we also do not want to write it out twice 
-  // or introduce additional helper function.
-  #define DET bx * py - by * px - ax * py + ay * px - bx * ay + by * ax
-  return 
-    (py <= ay && py > by && DET < 0) ||
-    (py > ay && py <= by && DET > 0);
-  #undef DET
+    double px, double py,
+    double ax, double ay,
+    double bx, double by
+) {
+    // we use a macro, becase we do not want to evaluate this expression
+    // if it's not necessary, but we also do not want to write it out twice
+    // or introduce additional helper function.
+#define DET bx * py - by * px - ax * py + ay * px - bx * ay + by * ax
+    return
+        (py <= ay && py > by && DET < 0) ||
+        (py > ay && py <= by && DET > 0);
+#undef DET
 }
 
 /**
- * Transforms a point `(wx, wy)` from world coords to 
+ * Transforms a point `(wx, wy)` from world coords to
  * the model coords of `i`-th polygon.
  *
  * Writes the result into `(px, py)`
  */
 void CGView::worldToPolyCoords(
-    int i, 
-    double wx, double wy, 
+    int i,
+    double wx, double wy,
     double &px, double &py
 ) {
-  double tx = trans[i][0];
-  double ty = trans[i][1];
-  double angle = trans[i][2];
-  double cx = center[i][0];
-  double cy = center[i][1];
+    double tx = trans[i][0];
+    double ty = trans[i][1];
+    double angle = trans[i][2];
+    double cx = center[i][0];
+    double cy = center[i][1];
 
-  // from poly to world:
-  // w = T(trans) T(center) R(angle) T(-center) p
-  // from world to local poly coords:
-  // p = T(center) R(-angle) T(-center) T(-trans) w
-  px = wx - tx - cx;
-  py = wy - ty - cy;
-  double cosA = cos(angle);
-  double sinA = sin(angle);
-  double tempPx = cosA * px + sinA * py;
-  py = -sinA * px + cosA * py + cy;
-  px = tempPx + cx;
+    // from poly to world:
+    // w = T(trans) T(center) R(angle) T(-center) p
+    // from world to local poly coords:
+    // p = T(center) R(-angle) T(-center) T(-trans) w
+    px = wx - tx - cx;
+    py = wy - ty - cy;
+    double cosA = cos(angle);
+    double sinA = sin(angle);
+    double tempPx = cosA * px + sinA * py;
+    py = -sinA * px + cosA * py + cy;
+    px = tempPx + cx;
 }
 
 void CGView::polyToWorldCoords(
-    int i, 
-    double px, double py, 
+    int i,
+    double px, double py,
     double &wx, double &wy
 ) {
-  double tx = trans[i][0];
-  double ty = trans[i][1];
-  double angle = trans[i][2];
-  double cx = center[i][0];
-  double cy = center[i][1];
+    double tx = trans[i][0];
+    double ty = trans[i][1];
+    double angle = trans[i][2];
+    double cx = center[i][0];
+    double cy = center[i][1];
 
-  // from poly to world:
-  // w = T(trans) T(center) R(angle) T(-center) w
-  wx = px - cx;
-  wy = py - cy;
-  double cosA = cos(angle);
-  double sinA = sin(angle);
-  double tempWx = cosA * wx - sinA * wy;
-  wy = sinA * wx + cosA * wy + cy + ty;
-  wx = tempWx + cx + tx;
+    // from poly to world:
+    // w = T(trans) T(center) R(angle) T(-center) w
+    wx = px - cx;
+    wy = py - cy;
+    double cosA = cos(angle);
+    double sinA = sin(angle);
+    double tempWx = cosA * wx - sinA * wy;
+    wy = sinA * wx + cosA * wy + cy + ty;
+    wx = tempWx + cx + tx;
 }
 
 /**
- * Checks whether a point lies inside the the `i`-th polygon of 
+ * Checks whether a point lies inside the the `i`-th polygon of
  * the `poly` array.
  */
 bool CGView::insidePoly(int i, double px, double py) {
-  int numIntersections = 0; 
-  
-  // This is essentially the same method as in exercise 2, but
-  // this time we have to transform the point `p` into the
-  // model coords of the polygon (Note: this is of course much
-  // faster than translating each vertex of the polygon into world
-  // coords)
-  double localPx, localPy;
-  worldToPolyCoords(i, px, py, localPx, localPy);
-  // the damn polygons aren't closed this time... work around
-  int mod = poly[i].size();
-  for(int j=0;j<(int) poly[i].size()/3;j++){
-    int j3=3*j; 
-    numIntersections += intersect(
-      localPx, localPy, 
-      poly[i][j3], poly[i][j3 + 1], 
-      poly[i][(j3 + 3) % mod], poly[i][(j3 + 4) % mod]
-    );
-  }
-  return numIntersections % 2 == 1;
+    int numIntersections = 0;
+
+    // This is essentially the same method as in exercise 2, but
+    // this time we have to transform the point `p` into the
+    // model coords of the polygon (Note: this is of course much
+    // faster than translating each vertex of the polygon into world
+    // coords)
+    double localPx, localPy;
+    worldToPolyCoords(i, px, py, localPx, localPy);
+    // the damn polygons aren't closed this time... work around
+    int mod = poly[i].size();
+
+    for (int j = 0; j < (int) poly[i].size() / 3; j++) {
+        int j3 = 3 * j;
+        numIntersections += intersect(
+                                localPx, localPy,
+                                poly[i][j3], poly[i][j3 + 1],
+                                poly[i][(j3 + 3) % mod], poly[i][(j3 + 4) % mod]
+                            );
+    }
+
+    return numIntersections % 2 == 1;
 }
 
 void CGView::mousePressEvent(QMouseEvent *event) {
@@ -351,6 +357,7 @@ void CGView::mousePressEvent(QMouseEvent *event) {
     worldCoord(event->x(), event->y(), dx, dy);
     std::cout << "Mouse pressed at (" << dx << "," << dy << ")" << std::endl;
     int i = 0;
+
     for (i = 0; i < poly.size(); i++) {
         if (insidePoly(i, dx, dy)) {
             std::cout << "Hit the polygon " << i << std::endl;
@@ -358,9 +365,11 @@ void CGView::mousePressEvent(QMouseEvent *event) {
             break;
         }
     }
+
     if (i == poly.size()) {
         i_picked = -1;
     }
+
     dragStartX = dx;
     dragStartY = dy;
     snapProposalX = 0;
@@ -370,9 +379,10 @@ void CGView::mousePressEvent(QMouseEvent *event) {
 
 void CGView::mouseReleaseEvent(QMouseEvent *event) {
     std::cout << "Mouse released" << std::endl;
+
     if (i_picked >= 0) {
-        std::cout << "updating trans of " << i_picked << " by " << 
-          snapProposalX << ", " << snapProposalY << std::endl;
+        std::cout << "updating trans of " << i_picked << " by " <<
+                  snapProposalX << ", " << snapProposalY << std::endl;
         trans[i_picked][0] += snapProposalX;
         trans[i_picked][1] += snapProposalY;
         snapProposalX = 0;
@@ -397,36 +407,36 @@ void projectToLineSegment(
     double x, double y,
     double &px, double &py
 ) {
-  // `d` is the direction of the line-segment
-  double dx = bx - ax;
-  double dy = by - ay;
+    // `d` is the direction of the line-segment
+    double dx = bx - ax;
+    double dy = by - ay;
 
-  // `r` is the position of `(x,y)` relative to `a`
-  double rx = x - ax;
-  double ry = y - ay;
+    // `r` is the position of `(x,y)` relative to `a`
+    double rx = x - ax;
+    double ry = y - ay;
 
-  double rdDot = rx * dx + ry * dy;
-  double dNormSq = dx * dx + dy * dy;
+    double rdDot = rx * dx + ry * dy;
+    double dNormSq = dx * dx + dy * dy;
 
-  // `p` is the closest point to `(x,y)` on the line segment 
-  if (rdDot <= 0 || dNormSq == 0) {
-    px = ax;
-    py = ay;
-  } else if (rdDot >= dNormSq) {
-    px = bx;
-    py = by;
-  } else {
-    double f = rdDot / dNormSq;
-    px = ax + f * dx;
-    py = ay + f * dy;
-  }
+    // `p` is the closest point to `(x,y)` on the line segment
+    if (rdDot <= 0 || dNormSq == 0) {
+        px = ax;
+        py = ay;
+    } else if (rdDot >= dNormSq) {
+        px = bx;
+        py = by;
+    } else {
+        double f = rdDot / dNormSq;
+        px = ax + f * dx;
+        py = ay + f * dy;
+    }
 }
 
 void CGView::proposeSnap(double xOffset, double yOffset) {
     // although some kind of bining would be appropriate in order
     // to keep the runtime roughly linear in the number of vertices
     // of the picked polygon,
-    // we use a brute force method, and simply iterate through 
+    // we use a brute force method, and simply iterate through
     // all vertices and all edges of all other polygons.
 
     double minimalDistance = 10000000;
@@ -440,10 +450,11 @@ void CGView::proposeSnap(double xOffset, double yOffset) {
     int p, i, j;
     int n = poly[i_picked].size();
     int m;
+
     // This is only vertex-to-vertex snapping
     for (i = 0; i < n / 3; i++) {
         polyToWorldCoords(
-            i_picked, 
+            i_picked,
             poly[i_picked][3 * i], poly[i_picked][3 * i + 1],
             ax, ay
         );
@@ -456,34 +467,39 @@ void CGView::proposeSnap(double xOffset, double yOffset) {
         ay += yOffset;
         cx += xOffset;
         cy += yOffset;
+
         for (p = 0; p < poly.size(); p++) {
             if (p != i_picked) {
                 m = poly[p].size();
+
                 for (j = 0; j < m / 3; j++) {
                     polyToWorldCoords(
-                        p, 
+                        p,
                         poly[p][3 * j], poly[p][3 * j + 1],
                         bx, by
                     );
                     polyToWorldCoords(
-                        p, 
+                        p,
                         poly[p][(3 * j + 3) % m], poly[p][(3 * j + 4) % m],
                         dx, dy
                     );
                     // compute distance between vertices
                     dist = hypot(ax - bx, ay - by);
+
                     if (dist < VERTEX_SNAP_DISTANCE && dist < minimalDistance) {
                         snapProposalX = xOffset + bx - ax;
                         snapProposalY = yOffset + by - ay;
                         minimalDistance = dist;
                     }
-                    // compute projections of `a` to `[b, d]` and 
+
+                    // compute projections of `a` to `[b, d]` and
                     // of `b` to `[a, c]`, penalize the distances with the
                     // line-snapping factor
                     projectToLineSegment(ax, ay, cx, cy, bx, by, projX, projY);
                     dist = hypot(projX - bx, projY - by);
-                    if (dist < VERTEX_SNAP_DISTANCE && 
-                        dist * LINE_DISTANCE_PENALTY < minimalDistance) {
+
+                    if (dist < VERTEX_SNAP_DISTANCE &&
+                            dist * LINE_DISTANCE_PENALTY < minimalDistance) {
                         snapProposalX = xOffset + bx - projX;
                         snapProposalY = yOffset + by - projY;
                         minimalDistance = dist * LINE_DISTANCE_PENALTY;
@@ -491,8 +507,9 @@ void CGView::proposeSnap(double xOffset, double yOffset) {
 
                     projectToLineSegment(bx, by, dx, dy, ax, ay, projX, projY);
                     dist = hypot(projX - ax, projY - ay);
-                    if (dist < VERTEX_SNAP_DISTANCE && 
-                        dist * LINE_DISTANCE_PENALTY < minimalDistance) {
+
+                    if (dist < VERTEX_SNAP_DISTANCE &&
+                            dist * LINE_DISTANCE_PENALTY < minimalDistance) {
                         snapProposalX = xOffset + projX - ax;
                         snapProposalY = yOffset + projY - ay;
                         minimalDistance = dist * LINE_DISTANCE_PENALTY;
@@ -511,13 +528,15 @@ void CGView::mouseMoveEvent(QMouseEvent *event) {
 
     double mouseX, mouseY;
     worldCoord(x, y, mouseX, mouseY);
+
     if (i_picked >= 0) {
-      proposeSnap(mouseX - dragStartX, mouseY - dragStartY);
+        proposeSnap(mouseX - dragStartX, mouseY - dragStartY);
     }
 
     if (event->button() == Qt::LeftButton) {
-      
+
     }
+
     updateGL();
 }
 

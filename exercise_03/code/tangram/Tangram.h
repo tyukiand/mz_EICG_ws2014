@@ -67,13 +67,13 @@ protected:
     GLUtriangulatorObj *tobj;
     bool insidePoly(int idx, double px, double py);
     int intersect(
-      double px, double py, double ax, double ay, double bx, double by);
+        double px, double py, double ax, double ay, double bx, double by);
     void worldToPolyCoords(int i, double x, double y, double &px, double &py);
     void polyToWorldCoords(int i, double x, double y, double &wx, double &wy);
     double dragStartX;
     double dragStartY;
 
-    /* computes a snap proposal from the current offset of the 
+    /* computes a snap proposal from the current offset of the
      * dragged polygon
      */
     void proposeSnap(double xOffset, double yOffset);
