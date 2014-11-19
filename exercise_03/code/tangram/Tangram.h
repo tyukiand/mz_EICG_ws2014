@@ -83,12 +83,6 @@ protected:
      */
     double snapProposalX;
     double snapProposalY;
-
-    /*
-     * coordinates of the point that would "snap"
-     */
-    double snappingPointX;
-    double snappingPointY;
 };
 #endif
 

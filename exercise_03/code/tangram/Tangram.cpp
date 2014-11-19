@@ -20,6 +20,7 @@
 
 const double VERTEX_SNAP_DISTANCE = 0.15;
 const double LINE_SNAP_DISTANCE = 0.15;
+const double LINE_DISTANCE_PENALTY = 2;
 
 CGMainWindow::CGMainWindow(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags) {
@@ -211,21 +212,6 @@ void CGView::paintGL() {
             glVertex2d(poly[i][3 * j + 0], poly[i][3 * j + 1]);
 
         glEnd();
-
-        // Reset the view, paint some markers in the second layer
-        glLoadIdentity();
-        glScaled(zoom, zoom, 1.0);
-        glTranslated(-centerX, -centerY, 0.0);
-
-        glColor3f(0.5f, 1.0f, 0.5f);
-        glBegin(GL_LINE_LOOP);
-        for (int i = 0; i < 20; i++) {
-            glVertex2d(
-                snappingPointX + 0.01 * cos(M_PI / 10 * i),
-                snappingPointY + 0.01 * sin(M_PI / 10 * i)
-            );
-        }
-        glEnd();
     }
 }
 
@@ -391,8 +377,6 @@ void CGView::mouseReleaseEvent(QMouseEvent *event) {
         trans[i_picked][1] += snapProposalY;
         snapProposalX = 0;
         snapProposalY = 0;
-        snappingPointX = 1000000000;
-        snappingPointY = 1000000000;
     }
 }
 
@@ -403,6 +387,40 @@ void CGView::wheelEvent(QWheelEvent *event) {
 }
 
 
+/**
+ * For a point `(x, y)` and a line segment `a` to `b`, computes a
+ * point `p` on the line-segment `[a, b]` that is closest to `(x, y)`.
+ */
+void projectToLineSegment(
+    double ax, double ay,
+    double bx, double by,
+    double x, double y,
+    double &px, double &py
+) {
+  // `d` is the direction of the line-segment
+  double dx = bx - ax;
+  double dy = by - ay;
+
+  // `r` is the position of `(x,y)` relative to `a`
+  double rx = x - ax;
+  double ry = y - ay;
+
+  double rdDot = rx * dx + ry * dy;
+  double dNormSq = dx * dx + dy * dy;
+
+  // `p` is the closest point to `(x,y)` on the line segment 
+  if (rdDot <= 0 || dNormSq == 0) {
+    px = ax;
+    py = ay;
+  } else if (rdDot >= dNormSq) {
+    px = bx;
+    py = by;
+  } else {
+    double f = rdDot / dNormSq;
+    px = ax + f * dx;
+    py = ay + f * dy;
+  }
+}
 
 void CGView::proposeSnap(double xOffset, double yOffset) {
     // although some kind of bining would be appropriate in order
@@ -414,39 +432,70 @@ void CGView::proposeSnap(double xOffset, double yOffset) {
     double minimalDistance = 10000000;
     snapProposalX = xOffset;
     snapProposalY = yOffset;
-    snappingPointX = 100000000;
-    snappingPointY = 100000000;
     double ax, ay; // vertex that snaps
     double bx, by; // candidate vertex from other polygon
+    double cx, cy, dx, dy; // next endpoints of [a, c], [b, d]
+    double projX, projY; // projections to line segments
     double dist; // distance to candidate
     int p, i, j;
-    for (i = 0; i < poly[i_picked].size() / 3; i++) {
+    int n = poly[i_picked].size();
+    int m;
+    // This is only vertex-to-vertex snapping
+    for (i = 0; i < n / 3; i++) {
         polyToWorldCoords(
             i_picked, 
             poly[i_picked][3 * i], poly[i_picked][3 * i + 1],
             ax, ay
         );
+        polyToWorldCoords(
+            i_picked,
+            poly[i_picked][(3 * i + 3) % n], poly[i_picked][(3 * i + 4) % n],
+            cx, cy
+        );
         ax += xOffset;
         ay += yOffset;
+        cx += xOffset;
+        cy += yOffset;
         for (p = 0; p < poly.size(); p++) {
             if (p != i_picked) {
-                for (j = 0; j < poly[p].size() / 3; j++) {
+                m = poly[p].size();
+                for (j = 0; j < m / 3; j++) {
                     polyToWorldCoords(
                         p, 
                         poly[p][3 * j], poly[p][3 * j + 1],
                         bx, by
                     );
+                    polyToWorldCoords(
+                        p, 
+                        poly[p][(3 * j + 3) % m], poly[p][(3 * j + 4) % m],
+                        dx, dy
+                    );
+                    // compute distance between vertices
                     dist = hypot(ax - bx, ay - by);
-                    std::cout << "dist between " << ax << ", " << ay <<
-                                                    bx << ", " << by <<
-                                                    " is " << dist << std::endl;
                     if (dist < VERTEX_SNAP_DISTANCE && dist < minimalDistance) {
-                        std::cout << "snapping " << std::endl;
                         snapProposalX = xOffset + bx - ax;
                         snapProposalY = yOffset + by - ay;
                         minimalDistance = dist;
-                        snappingPointX = bx;
-                        snappingPointY = by;
+                    }
+                    // compute projections of `a` to `[b, d]` and 
+                    // of `b` to `[a, c]`, penalize the distances with the
+                    // line-snapping factor
+                    projectToLineSegment(ax, ay, cx, cy, bx, by, projX, projY);
+                    dist = hypot(projX - bx, projY - by);
+                    if (dist < VERTEX_SNAP_DISTANCE && 
+                        dist * LINE_DISTANCE_PENALTY < minimalDistance) {
+                        snapProposalX = xOffset + bx - projX;
+                        snapProposalY = yOffset + by - projY;
+                        minimalDistance = dist * LINE_DISTANCE_PENALTY;
+                    }
+
+                    projectToLineSegment(bx, by, dx, dy, ax, ay, projX, projY);
+                    dist = hypot(projX - ax, projY - ay);
+                    if (dist < VERTEX_SNAP_DISTANCE && 
+                        dist * LINE_DISTANCE_PENALTY < minimalDistance) {
+                        snapProposalX = xOffset + projX - ax;
+                        snapProposalY = yOffset + projY - ay;
+                        minimalDistance = dist * LINE_DISTANCE_PENALTY;
                     }
                 }
             }
