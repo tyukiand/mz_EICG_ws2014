@@ -1,5 +1,5 @@
-#ifndef LIZARD_H
-#define LIZARD_H
+#ifndef TANGRAM_H
+#define TANGRAM_H
 
 #include <QMainWindow>
 #include <QGLWidget>
@@ -25,7 +25,6 @@ public:
     ~CGMainWindow();
 public slots:
     void loadPolygon();
-    void duplicatePolygon();
 public:
 protected:
     void keyPressEvent(QKeyEvent *);
@@ -49,10 +48,11 @@ public:
     int i_picked;
 
     // trans at i holds x-coord, y-coord and phi
-    // of i-th polygon
+    // of i-th polygon (in world-coords)
     std::vector<std::vector<double> > trans;
+
     // center holds x-coord and y-coord
-    // of the center of the i-th polygon
+    // of the center of the i-th polygon (relatively to model-coords)
     std::vector<std::vector<double> > center;
 
 protected:
@@ -63,22 +63,32 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
 
-
     CGMainWindow *main;
     GLUtriangulatorObj *tobj;
+    bool insidePoly(int idx, double px, double py);
+    int intersect(
+      double px, double py, double ax, double ay, double bx, double by);
+    void worldToPolyCoords(int i, double x, double y, double &px, double &py);
+    void polyToWorldCoords(int i, double x, double y, double &wx, double &wy);
+    double dragStartX;
+    double dragStartY;
 
-private:
-    int intersect(double px, double py, double ax, double ay, double bx, double by);
-    bool insidePolygonI(int i, double px, double py);
-    double lastX;
-    double lastY;
-    bool lastClickInside;
-    bool clicked;
-    QPoint clickedPoint;
-    std::vector<double> clickedPolyTrans;
-    // coordinates of last mouse move event
-    int x;
-    int y;
+    /* computes a snap proposal from the current offset of the 
+     * dragged polygon
+     */
+    void proposeSnap(double xOffset, double yOffset);
+
+    /* the proposed offset that would result in some kind of "snapping" of
+     * the currently dragged polygon
+     */
+    double snapProposalX;
+    double snapProposalY;
+
+    /*
+     * coordinates of the point that would "snap"
+     */
+    double snappingPointX;
+    double snappingPointY;
 };
 #endif
 
