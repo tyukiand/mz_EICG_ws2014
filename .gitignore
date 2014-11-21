@@ -10,3 +10,6 @@ moc_*
 exercise_02/code/Lizard
 exercise_03/code/**/Texture
 .qmake.stash
+*.zip
+exercise_03/code/Demo04/Lizard
+exercise_03/code/tangram/Tangram
