@@ -14,6 +14,9 @@
 
 \noindent\hrulefill
 
+\exercise{4.1}{ Parallel-perspective point-picking } 
+(See code)
+
 \exercise{4.2}{ Cavalier perspective } 
  
 \begin{figure}[!h]
@@ -70,4 +73,115 @@ $
 0& 0 & 0& 0\\
 0 & 0& 0& 1
 \end{pmatrix}$
+
+\exercise{4.3}{ Perspective projection and lines } 
+We want to understand the effects of perspective projection on lines in three dimensional
+space.
+Let $f>0$ be some constant. 
+We omit the discussion of all the tricks with the third component of the projection (
+which are relevant only for the z-buffer),
+and we also omit all the details related to hardware-specific screen sizes and sign-conventions.
+Instead, we assume without loss of generality, that the observer is located at $0$ and
+is looking into the positive $z$-direction, projecting everything on a near-clipping
+plane at $z=f$. That means, that a point $(x,y,z)$ is projected to $(fx/z, fy/z, f)$.
+Expressed as a matrix for homogeneous coordinates, this looks as follows:
+\[
+  \mat{cccc}{
+     f & 0 & 0 & 0 \\
+     0 & f & 0 & 0 \\
+     0 & 0 & f & 0 \\
+     0 & 0 & 1 & 0 
+  }
+  \mat{c}{
+    x \\
+    y \\
+    z \\
+    1
+  }
+  = 
+  \mat{c}{
+    fx \\
+    fy \\
+    fz \\
+    z 
+  } 
+  \rightharpoonup 
+  \mat{c}{
+    fx/z \\ 
+    fy / z \\
+    f
+  }
+\]
+Now let $b\in \Real^3$ be some base vector and $d\in \Real^3$ be some dimension vector, we 
+want to consider the straight line $\setPredicate{b + t d}{t\in\Real}$.
+Applying the projection to the points of the straight line, we obtain:
+\[
+  \mat{cccc}{
+     f & 0 & 0 & 0 \\
+     0 & f & 0 & 0 \\
+     0 & 0 & f & 0 \\
+     0 & 0 & 1 & 0 
+  }
+  \mat{c} {
+    b_x + t d_x \\
+    b_y + t d_y \\
+    b_z + t d_z \\
+    1
+  }
+  \rightharpoonup
+  \mat{c}{
+    f \frac{b_x + t d_x}{b_z + t d_z} \\
+    f \frac{b_y + t d_y}{b_z + t d_z} \\
+    f
+  }
+\]
+Now we want to compute the derivative of the right-hand side with respect to $t$.
+Obviously, it is sufficient to consider only the first component (the 
+second looks almost the same, the third is a constant). Let's also drop the
+factor $f$ for a moment. It holds:
+\begin{align*}
+  \frac{d}{dt} \frac{b_x + t d_x}{b_z + t d_z} 
+    &= \frac{d_x}{b_z + t d_z} - \frac{(b_x + t d_x) d_z}{(b_z + t d_z)^2} \\
+    &= \frac{d_x(b_z + t d_z) - (b_x + t d_x) d_z}{(b_z + t d_z)^2} \\
+    &= \frac{d_x b_z - b_x d_z}{(b_z + t d_z)^2}
+\end{align*}
+For all three components together, it means:
+\begin{align*}
+  \frac{d}{dt}\mat{c}{
+    f \frac{b_x + t d_x}{b_z + t d_z} \\
+    f \frac{b_y + t d_y}{b_z + t d_z} \\
+    f
+  } = 
+  \frac{f}{(b_z + t d_z)^2}
+  \mat{c}{
+     d_x b_z - b_x d_z \\
+     d_y b_z - b_y d_z \\
+     0
+  }.
+\end{align*}
+Now we can make the following observations.
+First, notice that although the whole velocity vector is not constant, 
+\emph{it's direction is}: it is always the vector $(
+     d_x b_z - b_x d_z,
+     d_y b_z - b_y d_z, 0
+  )$, scaled by some $t$-dependent factor. 
+  In particular, the projection of the line is contained in the 
+  line 
+  $\setPredicate{(f b_x / b_z, f b_y / b_z, f) + q (d_x b_z - b_x d_z,
+  d_y b_z - b_y d_z, 0)}{q \in \Real}$. 
+  If one does not care too much 
+  about the fact that the original line is infinite, while the projected 
+  line is bounded by vanishing points, one could express it as ``
+  straight lines are projected to straight lines'' (this is the statement (i)).
+  
+  Now take a closer look at the direction vector $(d_x b_z - b_x d_z,
+  d_y b_z - b_y d_z, 0)$. As long as $d_z$ is not zero, this direction 
+  vector depends on the coordinates of the base point $b_x$ and $b_y$,
+  so that parallel lines with $d_z\neq 0$ will in general no
+  longer be parallel after projection (this shows (ii)).
+
+  However, if $d_z$ is zero, then
+  the direction vector becomes just $b_z(d_x, d_y, 0)$ after projection, that is, it is a scaled version of the original vector $(d_x, d_y, d_z)$. This means that
+  parallel lines that are parallel to the projection plane remain parallel, 
+  and do not intersect in a vanishing point (iii).
 \end{document}
