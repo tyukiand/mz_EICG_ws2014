@@ -1,5 +1,5 @@
-#ifndef PERSPECTIVE_H
-#define PERSPECTIVE_H
+#ifndef FLIGHT_SIMULATOR_H
+#define FLIGHT_SIMULATOR_H
 
 #include <QMainWindow>
 #include <QGLWidget>
@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "vecmath.h"
-#include "MyPlane.h"
+#include "Jet.h"
 
 #if _MSC_VER
 #include <gl/glu.h>
@@ -23,6 +23,18 @@
 #ifndef VECMATH_VERSION
 #  error "vecmath-library might be out-of-date. Please use newer version"
 #endif
+
+// Properties of the generated terrain grid (10x10 km square)
+const double landscapeSizeX = 10000;
+const double landscapeSizeY = 10000;
+const int sizeX = 100;
+const int sizeY = 100;
+
+// everything 100 m around buildings must be completely flat
+const double townFlatRadius = 100;
+// this radius away from the buildings the terrain can do whatever it wants
+const double townMaxRadius = 1000;
+const double townPlateauHeight = 1000;
 
 class CGView;
 
@@ -59,10 +71,11 @@ public:
         after invocation of paintGL) and stores the result in v */
     void worldCoord(int x, int y, int z, Vector3d &v);
 
-    Vector3d min, max, center, move;    // min, max and center of the coords of the loaded model
+    // Vector3d min, max, center, move;    // min, max and center of the coords of the loaded model
 
     double zoom;
     double phi, theta;
+    bool wire;
     std::vector<Vector3d> coord;            // the coords of the loaded model
     std::vector<std::vector<int> > ifs;     // the faces of the loaded model, ifs[i] contains the indices of the i-th face
 
@@ -79,6 +92,7 @@ protected:
 
     CGMainWindow *main;
     int oldX, oldY;
+    double oldTheta, oldPhi;
 
 private:
 
@@ -95,20 +109,26 @@ private:
     /// Diskreter Schritt bei der Bewegung!
     double step;// = 0.01;
 
-    /// Das ist f"ur das H"ohenfeld!
-    static const int sizeX = 100;
-    static const int sizeY = 100;
+    // this vector stores the weight of the terrain function relative to
+    // the weight of the height preferred by Houston.
+    double town_vs_terrain[sizeX][sizeY];
+
+    // this vector stores the height of the surrounding terrain
     double height_vector[sizeX][sizeY];
     Vector3d normal_vector[sizeX][sizeY];
 
-    /// Wireframe oder Filled?
-    bool wire;// = false;
-
     /// Der Flieger
-    MyPlane plane;
+    Jet plane;
+
+    // the town geometry
+    std::vector<Vector3d> town_vertices;
+    std::vector<int> town_triangles;
 
     void init_height();
-    void drawHeight();
+    void init_town();
+    void drawLandscape(bool wireframeOnly, Vector3d color);
+    void drawTown();
+    void drawOcean();
 
 public slots:
 
@@ -119,6 +139,7 @@ public slots:
 
     void reset_plane() {plane.placeMe(place);};
     void toggle_follow() {follow = !follow;};
+    void toggle_wire() {wire = !wire;}
     void timer();
 
 };

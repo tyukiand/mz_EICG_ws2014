@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#ifndef OFF_LOADER
+#define OFF_LOADER
 
 /// Läd ein OFF-File as_FileName und speichert alle Knoten in ak_Vertices
 //* Die Indizierung der Flächen wirdin ak_Indices abgelegt.
@@ -84,6 +86,4 @@ void LoadOffFile(char *as_FileName, std::vector<Vector3d> &ak_Vertices, std::vec
     //OUT: lk_Vertices, lk_Indices
 }
 
-
-
-
+#endif
