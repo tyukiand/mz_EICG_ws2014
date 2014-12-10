@@ -14,6 +14,53 @@
 
 \noindent\hrulefill
 
+\exercise{6.1}{Trackball}
+
+\noindent {\bf a)} 
+We want to derive an expression for a quaternion that
+corresponds to the rotation of a unit vector $u$
+to some other unit vector $v$ (assuming that $u\neq \pm v$).
+
+We can simply choose 
+\[
+  z := \frac{u^T v}{\norm{u \cross v}}
+\] 
+as rotation axis and compute the angle as follows:
+\[
+  \phi := \arccos(u^T v).
+\]
+Then we can simply plug the both numbers into the formula for the rotation 
+quaternion:
+\[
+  \rPar{\cos\rPar{\frac{\phi}{2}}, \sin\rPar{\frac{\phi}{2}} z}.
+\]
+
+\noindent {\bf b)} The above formula would probably do the job, however, we
+might want to eliminate unnecessary normalizations and trigonometric functions.
+For this, remember that it holds (for angles from $[0, \pi]$):
+\[
+  \cos\rPar{\frac{\phi}{2}} = \sqrt{\frac{1 + \cos \phi}{2}}
+  \qquad
+  \sin\rPar{\frac{\phi}{2}} = \sqrt{\frac{1 - \cos \phi}{2}}.
+\]
+Furthermore, notice that $\cos(\phi) = u^T v$ and 
+\[
+  \norm{u \cross v} = \sin(\phi) = \sqrt{1 - (u^T v)^2}.
+\]
+Therefore it holds (for $q$ from the first part):
+\begin{align*}
+  \sqrt{2}\sqrt{1 + u^T v} q 
+  &= 
+  \sqrt{2}\sqrt{1 + u^T v}\rPar{
+    \sqrt{\frac{1 + u^T v}{2}},
+    \frac{u\cross v}{\sqrt{1 - (u^T v)^2}}
+    \sqrt{\frac{1 - u^T v}{2}}
+  } \\
+  &= (1 + u^T v, u\cross v),
+\end{align*}
+so we see that we can compute $(1 + u^T v, u\cross v)$ and normalize it, 
+instead of messing with trigonometric functions.
+
 \exercise{6.2}{Converting into 	Euler's angles}
 \begin{enumerate}[label={a)}]
 	\item	
@@ -159,8 +206,144 @@
 \end{enumerate}
 
 
-%\begin{figure}[htbp]
-%  \centering\includegraphics[width=0.5\linewidth]{images/exampleImage.png}
-%\end{figure}
+\exercise{6.3}{Some basic properties of quaternions}
+
+We denote 
+\footnote{What's that ``underscore''-thingie, how does one TeX it?} quaternions as $\bar a = (a_0, a)$ and assume that the
+vector-part $a$ is a column vector. We sometimes write the whole
+quaternion vertically. Remember that the multiplication of quaternions
+is defined as follows:
+\[
+  \bar a \cdot \bar b = (a_0 b_0 - a^T b, a_0 b + b_0 a + a \cross b).
+\]
+
+\noindent {\bf a)} We want to show that the multiplication of 
+quaternions is associative (which is not obvious, because the quaternion product contains the cross product).
+The brute-force proof with all $3$ quaternions simultaneously 
+seems to be surprisingly nasty, so instead we embed the 
+quaternions into a matrix algebra about which we know that it is 
+associative (this allows us to deal with just two quaternions at a time).
+
+First, we express quaternion multiplication as a matrix product:
+\[
+  \bar a \cdot \bar b = \mat{cc}{
+    a_0 & -a^T \\
+    a   & (a_0 I + [a]_\cross)
+  }
+  \mat{c}{b_0 \\ b},
+\]
+and write $M_{\bar a}$ for the 4x4-matrix.
+It is not immediately obvious how the product of two such matrices relates to the product of quaternions. For the following 
+computation we have to remember:
+\begin{itemize}
+  \item $[a \cross b]_\cross = b a^T - a b^T$ (This is the BAC-CAB rule in matrix form)
+  \item $[a]_\cross [b]_\cross = b a^T - a^T b I$ (This is again the
+  BAC-CAB rule, up to some sign changes and permutations)
+\end{itemize} 
+Using these BAC-CAB-rules in the lower right corner of the matrix, we compute:
+\begin{align*}
+  M_{\bar a} M_{\bar b}
+    &= \mat{cc}{
+      a_0 & -a^T \\
+      a   & a_0 I + [a]_\cross
+    }
+    \mat{cc}{
+      b_0 & -b^T \\
+      b   & b_0 I + [b]_\cross
+    } \\
+    &= \mat{cc}{
+      (a_0 b_0 - a^T b) & (-a_0 p^T - b_0 a^T - a^T [b]_\cross) \\
+      (a_0 b + b_0 a + [a]_\cross b) &
+        -a b^T + a_0 b_0 I + a_0 [b]_\cross + b_0 [a]_\cross + 
+        [a]_\cross [b]_\cross
+    } \\
+    &= \mat{cc} {
+      (a_0 b_0 - a^T b) & -(a_0 p^T + b_0 a^T + a \cross b) \\
+      (a_0 b + b_0 a + [a]_\cross b) &
+        (a_0 p_0 - a^T b)I + [a_0 b + b_0 a + a\cross b]_\cross
+    } \\
+    &= M_{\bar a \bar b}.
+\end{align*}
+Now using this, 
+for arbitrary quaternions $\bar a, \bar b, \bar c$ we can 
+easily verify:
+\[
+  (\bar a \bar b) \bar c = 
+  \rPar{M_{\bar a \bar b}}\bar c =
+  \rPar{M_{\bar a} M_{\bar b}} \bar c = 
+  M_{\bar a} \rPar{M_{\bar b} \bar c} =
+  \bar a (\bar b \bar c),
+\]
+because we already know that matrix product is associative.
+\hfill \qed
+
+\noindent {\bf b)} Despite being completely trivial, the
+following computation is actually kind of important, 
+because it shows us that $\bar a \bar a^\ast$ is
+actually a real number:
+\[
+  \bar a \bar a^\ast = 
+    (a_0^2 - \norm{a}^2, 0) 
+    = \bar a^\ast \bar a
+\]
+This in turn allows us to define inverses of quaternions
+analogously to the inverses of complex numbers.
+\hfill \qed
+
+\noindent {\bf c)} Notice: $-p\cross q = (-q) \cross (-p)$.
+Therefore:
+\begin{align*}
+  (\bar p \bar q)^\ast 
+    &= (p_0 q_0 - p^T q, -q_0 p - p_0 q - p\cross q) \\
+    &= (q_0, -q)(p_0, -p) \\
+    &= \bar q^\ast \bar p^\ast
+\end{align*}
+The same in matrix-notation introduced above (bars omitted):
+\[
+  M_{(a b)^\ast} = M^T_{ab} = \rPar{M_a M_b}^T = M_b^T M_a^T = 
+  M_{b^\ast} M_{a^\ast}.
+\]
+\hfill \qed
+
+\exercise{6.4}{Two-sheeted covering of $SO(3)$}
+We want to show that for every unit quaternion $\bar q$
+the rotation induced by $\bar q$ is the same as the 
+rotation induced by $-\bar a$.
+
+There are many possible ways.
+The simplest one is as follows: quaternions commute
+with all real numbers, in particular with $\pm 1$, 
+therefore for each $\bar p = (0, v)$ it holds:
+\[
+  (-\bar q)\bar p (- \bar q)^\ast = 
+  (-1)^2 \bar q \bar p \bar q^\ast.
+  = \bar q \bar p \bar q^\ast.
+\]
+
+A somewhat less simple possibility is to take a look
+at the resulting rotation matrix (for components
+$\bar q = (a, b, c, d)$):
+\[
+  \mat{ccc}{
+        a^{2} + b^{2} -c^{2} -d^{2} & -2 a d +2 b c & 2 a c +2 b d \\
+        2 a d +2 b c &  a^{2} + c^{2} -b^{2} -d^{2} & -2 a b +2 c d \\
+        -2 a c +2 b d & 2 a b +2 c d &  a^{2} + d^{2} -b^{2} -c^{2}
+      } 
+\]
+All entries of this matrix are actually polynomials in $a, b, c, d$ consisting only of terms with degree exactly $2$, therefore the factor $(-1)^2$ just cancels out everywhere.
+
+Another possibility is to consider the Rodrigues-rotation 
+matrix for the angle/axis $(\phi, z)$ associated with the 
+quaternion $\bar q$ and to remember that $\cos$ is symmetric
+and $\sin$ antisymmetric:
+\begin{align*}
+  R_{(-\phi,-z)} 
+    &= \cos(-\phi)I + \sin(-\phi)[-z]_\cross + 
+       (1 - \cos(-\phi))(-z)(-z)^T \\
+    &= \cos(\phi)I + (-1)^2\sin(\phi)[z]_\cross +
+       (1 - \cos(\phi))(-1)^2 zz^T \\
+    &= R_{(\phi, z)}
+\end{align*}
+\hfill \qed
 
 \end{document}
