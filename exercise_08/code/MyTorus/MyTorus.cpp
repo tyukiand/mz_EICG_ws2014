@@ -31,14 +31,21 @@ CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
     ogl = new MyTorus (this,f);
 
 	// Create a menu
-    QMenu *file = new QMenu("&File",this);
+    QMenu *file = new QMenu("&Draw Methode",this);
     file->addAction ("&Wireframe", this->ogl, SLOT(drawWireFrame()), Qt::CTRL+Qt::Key_W);
     file->addAction ("&Flat-Shading",this->ogl,SLOT(flating()),Qt::CTRL+Qt::Key_F ),
     file->addAction ("&exact Smooth-Shading", this->ogl, SLOT(exactSmoothing()), Qt::CTRL+Qt::Key_S+Qt::Key_E);
     file->addAction ("&Smooth-Shading", this->ogl, SLOT(smoothing()), Qt::CTRL+Qt::Key_S);
     file->addAction ("Quit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);
 
+    QMenu *colMenu = new QMenu("&Color",this);
+    colMenu->addAction ("&Kupfer", this->ogl, SLOT(setKupfer()), Qt::CTRL+Qt::Key_K);
+    colMenu->addAction ("&Rubin",this->ogl,SLOT(setRubin()),Qt::CTRL+Qt::Key_R ),
+    colMenu->addAction ("&Smaragd", this->ogl, SLOT(setSmaragd()), Qt::CTRL+Qt::Key_M);
+    colMenu->addAction ("&Silber", this->ogl, SLOT(setSilber()), Qt::CTRL+Qt::Key_I);
+
     menuBar()->addMenu(file);
+    menuBar()->addMenu(colMenu);
 
 
 	// Put the GL widget inside the frame
@@ -57,7 +64,6 @@ CGMainWindow::~CGMainWindow () {}
 void MyTorus::torusNormal(double phi, double theta, Vector3d &normal){
     Vector3d dT_dTheta (-(R+r*cos(phi))*sin(theta),(R+r*cos(phi))*cos(theta),0);
     Vector3d dT_dPhi (-r*sin(phi)*cos(theta),-r*sin(phi)*sin(theta),r*cos(phi));
-    //Vector3d normal;
     normal.cross(dT_dTheta,dT_dPhi);
     normal.normalize();
 
@@ -299,6 +305,46 @@ void MyTorus::smoothExactShading(){
     }
 }
 
+void MyTorus::colorChoose(){
+    //colorCode: default: Kupfer 1:Rubin 2:Smaragdgruen 3:Silber
+    GLfloat ambient[4];
+    GLfloat diffuse[4];
+    GLfloat spekular[4];
+    GLfloat shine[1];
+
+    switch(colorCode){
+    case 1:
+        ambient[0]= 0.17;   ambient[1]= 0.01;   ambient[2]= 0.01;   ambient[3]= 0.5;
+        diffuse[0] = 0.61;  diffuse[1]= 0.04;   diffuse[2]= 0.04;   diffuse[3]= 0.5;
+        spekular[0]= 0.73;  spekular[1]=0.63;   spekular[2]=0.63;   spekular[3]= 0.5;
+        shine[0]=76.8;
+        break;
+    case 2:
+        ambient[0]= 0.02;   ambient[1]= 0.17;   ambient[2]= 0.02;   ambient[3]= 0.5;
+        diffuse[0] = 0.08;  diffuse[1]= 0.61;   diffuse[2]= 0.08;   diffuse[3]= 0.5;
+        spekular[0]= 0.63;  spekular[1]=0.73;   spekular[2]=0.63;   spekular[3]= 0.5;
+        shine[0]=76.8;
+        break;
+    case 3:
+        ambient[0]= 0.19;   ambient[1]= 0.19;   ambient[2]= 0.19;   ambient[3]= 1.0;
+        diffuse[0] = 0.51;  diffuse[1]= 0.51;   diffuse[2]= 0.51;   diffuse[3]= 1.0;
+        spekular[0]= 0.51;  spekular[1]=0.51;   spekular[2]=0.51;   spekular[3]= 1.0;
+        shine[0]=51.2;
+        break;
+    default:
+        ambient[0]= 0.19;   ambient[1]= 0.07;   ambient[2]= 0.02;   ambient[3]= 1.0;
+        diffuse[0] = 0.70;  diffuse[1]= 0.27;   diffuse[2]= 0.08;   diffuse[3]= 1.0;
+        spekular[0]= 0.26;  spekular[1]=0.14;   spekular[2]=0.09;   spekular[3]= 1.0;
+        shine[0]=12.8;
+        break;
+    }
+
+    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE, diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR, spekular);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS, shine );
+}
+
 void MyTorus::draw(int p_num, int t_num){
     calPoint(p_num,t_num);
 
@@ -314,15 +360,7 @@ void MyTorus::draw(int p_num, int t_num){
     glBegin(GL_QUADS);
 
     glColor3f(1,0,0);
-    //Kupfer
-    GLfloat ambient[] = { 0.19, 0.07, 0.02, 1.0};
-    GLfloat diffuse[] = { 0.70, 0.27, 0.08, 1.0 };
-    GLfloat spekular[] = { 0.26, 0.14, 0.09, 1.0};
-    GLfloat shine[]={12.8 };
-    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE, diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR, spekular);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS, shine );
+    colorChoose();
     if(wire)
         wireFrame();
     else{
@@ -356,6 +394,7 @@ void MyTorus::initializeGL() {
     smooth=false;
     p_num=15;
     t_num=40;
+    colorCode=1;
     glEnable(GL_NORMALIZE);
     glDisable(GL_COLOR_MATERIAL);
     glEnable(GL_BLEND);
@@ -426,19 +465,6 @@ void MyTorus::mousePressEvent(QMouseEvent *event) {
 	oldX = event->x();
     oldY = event->y();
 }
-
-
-
-/*void MyTorus::keyPressEvent( QKeyEvent * event) {
-
-    switch (event->key()) {
-        case Qt::Key_W     : wire = !wire; break;
-        case Qt::Key_F     : flat = !flat;smoothExact=!smoothExact; break;
-       // case Qt::Key_S     : wire = !wire; break;
-    }
-
-    updateGL();
-}*/
 
 
 void MyTorus::mouseReleaseEvent(QMouseEvent*) {}

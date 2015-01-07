@@ -35,13 +35,6 @@ public:
 	CGMainWindow (QWidget* parent = 0, Qt::WindowFlags flags = Qt::Window);
 	~CGMainWindow ();
 
-/*public slots:
-
-    void loadPolyhedron();*/
-
-/*protected:
-
-    void keyPressEvent(QKeyEvent*);*/
 
 private:
 
@@ -69,13 +62,13 @@ public:
     void flatShading();
     void smoothShading();
     void smoothExactShading();
+    void colorChoose();
 
     double R,r;
 	double zoom;
-   // std::vector<Vector3d> coord;
     std::vector<double> theta,phi;
     double alpha,beta;
-    std::vector<std::vector<Vector3d> > coordTorus;			// the coords of the loaded model
+    std::vector<std::vector<Vector3d> > coordTorus;		
 
 private:
     int p_num,t_num;
@@ -83,6 +76,7 @@ private:
     bool flat;
     bool smooth;
     bool smoothExact;
+    int colorCode;//colorCode: default: Kupfer 1:Rubin 2:Smaragdgruen 3:Silber
 
 	
 protected:
@@ -127,6 +121,22 @@ public slots:
         flat=false;
         smooth=true;
         smoothExact=false;
+    }
+
+    void setKupfer(){
+        colorCode=0;
+    }
+
+    void setRubin(){
+        colorCode=1;
+    }
+
+    void setSmaragd(){
+        colorCode=2;
+    }
+
+    void setSilber(){
+        colorCode=3;
     }
 
     void timer ();
