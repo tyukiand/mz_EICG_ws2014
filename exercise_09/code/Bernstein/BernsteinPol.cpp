@@ -69,12 +69,14 @@ void BernsteinPol::initializeGL() {
     qglClearColor(Qt::white);
 
     zoom = 1.0;
-    n=2;
-    binomialCoeff=1;
+    n=0;
+    //binomialCoeff=1;
     t.resize(250);
-    for(int i=0;i<t.size();i++){
+    for(unsigned int i=0;i<t.size();i++){
         t[i]=(i*1.0)/t.size();
     }
+    t.resize(t.size()+1);
+    t[t.size()-1]=1;
 
    /* glEnable(GL_NORMALIZE);
     glDisable(GL_COLOR_MATERIAL);
@@ -89,16 +91,26 @@ void BernsteinPol::initializeGL() {
 
 }
 
-double BernsteinPol::polynomValue(double x,int i){
+double BernsteinPol::binomCoeff(unsigned int n,unsigned int i){
+    double result=1;
+    for(unsigned int j=1;j<=i;j++){
+        result=result*((n-i)*1.0/j+1);
+    }
+    return result;
+}
+
+double BernsteinPol::polynomValue(double x, unsigned int i, unsigned int n, double binomialCoeff){
+
     return binomialCoeff*pow(x,i)*pow(1-x,n-i);
 
 }
 
-void BernsteinPol::verticesIPolynom(int i){
-    for(int j=0;j<t.size()-1;j++){
+void BernsteinPol::verticesIPolynom(unsigned int i){
+    double binomialCoeff=binomCoeff(n,i);
+    for(unsigned int j=0;j<t.size()-1;j++){
 
-        glVertex2d(t[j],polynomValue(t[j],i));
-        glVertex2d(t[j+1],polynomValue(t[j+1],i));
+        glVertex2d(t[j],polynomValue(t[j],i,n,binomialCoeff));
+        glVertex2d(t[j+1],polynomValue(t[j+1],i,n,binomialCoeff));
 
     }
 }
@@ -113,20 +125,72 @@ void BernsteinPol::paintGL() {
 
     glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_LINES);
+    glLineWidth(.5);
+    glColor3d(0,0,0);
+    //parallel y-achse
+    glVertex2d(0,1);
+    glVertex2d(1,1);
+    glVertex2d(1,0.2);
+    glVertex2d(0.98,0.2);
+    glVertex2d(1,0.4);
+    glVertex2d(0.98,0.4);
+    glVertex2d(1,0.6);
+    glVertex2d(0.98,0.6);
+    glVertex2d(1,0.8);
+    glVertex2d(0.98,0.8);
+
+    //parallel x-Achse
+    glVertex2d(1,0);
+    glVertex2d(1,1);
+    glVertex2d(0.2,1);
+    glVertex2d(0.2,0.98);
+    glVertex2d(0.4,1);
+    glVertex2d(0.4,0.98);
+    glVertex2d(0.6,1);
+    glVertex2d(0.6,0.98);
+    glVertex2d(0.8,1);
+    glVertex2d(0.8,0.98);
 
     glColor3f(1.0,.0,.0);
-    verticesIPolynom(2);
+    for(unsigned int i=0;i<=n;i++){
+        verticesIPolynom(i);
+    }
+
     glColor3d(0,0,0);
+    //y-achse
     glVertex2d(0,0);
     glVertex2d(0,1);
+    glVertex2d(0,0.2);
+    glVertex2d(0.02,0.2);
+    glVertex2d(0,0.4);
+    glVertex2d(0.02,0.4);
+    glVertex2d(0,0.6);
+    glVertex2d(0.02,0.6);
+    glVertex2d(0,0.8);
+    glVertex2d(0.02,0.8);
+
+    //x-achse
     glVertex2d(0,0);
     glVertex2d(1,0);
+    glVertex2d(0.2,0);
+    glVertex2d(0.2,0.02);
+    glVertex2d(0.4,0);
+    glVertex2d(0.4,0.02);
+    glVertex2d(0.6,0);
+    glVertex2d(0.6,0.02);
+    glVertex2d(0.8,0);
+    glVertex2d(0.8,0.02);
+
+
+
+
+
     glEnd();
 
    /* glEnable(GL_LIGHT0);
     GLfloat pos0[]={0,0,-10,0};
     glLightfv(GL_LIGHT0,GL_POSITION,pos0);
-    glLineWidth(1.0);*/
+    */
 }
 
 void BernsteinPol::resizeGL(int width, int height) {

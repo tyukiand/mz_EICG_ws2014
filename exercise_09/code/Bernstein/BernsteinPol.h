@@ -48,20 +48,20 @@ public:
 
     BernsteinPol(CGMainWindow*,QWidget*);
 	void initializeGL();
-    double polynomValue(double x,int i, double binomialCoeff);
+    double polynomValue(double x,unsigned int i,unsigned int n, double binomialCoeff);
 	
 	/** transforms the picture coords (x,y,z) to world coords by 
 		inverting the projection and modelview matrix (as it it is 
 		after invocation of paintGL) and stores the result in v */
 
 	void worldCoord(int x, int y, int z, Vector3d &v);
-    void verticesIPolynom(int i);
-    double binomCoeff(int n, int i);
+    void verticesIPolynom(unsigned int i);
+    double binomCoeff(unsigned int n, unsigned int i);
 
 	double zoom;
 
 private:
-    int n;
+    unsigned int n;
     //double binomialCoeff;
     std::vector<double> t;
 
