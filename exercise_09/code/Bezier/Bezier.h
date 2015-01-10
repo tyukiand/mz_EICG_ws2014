@@ -57,14 +57,16 @@ public:
 	void worldCoord(int, int, double&, double&);
 
 	std::vector<Vector3d> control_points;
-  double minX,minY,maxX,maxY;
+    double minX,minY,maxX,maxY;
 	double centerX,centerY,zoom;
 	int fillMode;
-	bool show_bezier;
+    bool opengl_bezier;
+    bool own_bezier;
 
 public slots:
 
-	void toggleBezier() {show_bezier = !show_bezier; updateGL();};
+    void ownBezier() {opengl_bezier = !opengl_bezier; updateGL();};
+    void openglBezier() {own_bezier = !own_bezier; updateGL();};
 
 protected:
 
@@ -76,10 +78,20 @@ protected:
 	void mouseReleaseEvent(QMouseEvent*);
 	void wheelEvent(QWheelEvent*);
 
-	void de_casteljau(double t0, const std::vector<Vector3d> &l);
+    double bezpoly(double x, unsigned int i, unsigned int n);
+    int nearPoint(double x, double y);
+    Vector3d de_casteljau(double t0,unsigned int r, unsigned int i, const std::vector<Vector3d> &l);
+    Vector3d de_casteljau(double t0, const std::vector<Vector3d> &l);
 	void draw_bezier_casteljau (const std::vector<Vector3d> &l);
+    void opengl_method(const std::vector<Vector3d> &l);
+    void projectToLineSegment(Vector3d a,Vector3d b,Vector3d x,Vector3d &p);
+    void projToLine(Vector3d point, Vector3d &p);
+
 
 	CGMainWindow *main;
+    int pointMoving=-1;
+    double clickedX,clickedY;
+    double ep=0.08;
 };
 
 #endif
