@@ -17,6 +17,15 @@
 
 #include "vecmath.h"
 
+
+#include <string.h>
+#include <fstream>
+
+#if defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 #if _MSC_VER
 	#include <gl/glu.h>
 #elif __APPLE__
@@ -56,15 +65,25 @@ public:
 
 	void worldCoord(int x, int y, int z, Vector3d &v);
     void verticesIPolynom(unsigned int i);
+    double zoom;
     double binomCoeff(unsigned int n, unsigned int i);
+    double colorCurv[10][3]={{0.,0.,1.},
+                            {0.,1.,0.},
+                            {0.,1.,1.},
+                            {1.,0.,0.},
+                            {1.,0.,1.},
+                            {1.,1.,0.},
+                            {0.,0.392,0.0},//Darkgreen
+                            {0.545,0.271,0.075},//saddleBrown
+                            {0.098,0.098,0.439},//midnightBlue
+                            {0,0,0}
+                           };
 
-	double zoom;
+
 
 private:
     unsigned int n;
-    //double binomialCoeff;
     std::vector<double> t;
-
 
 	
 protected:
@@ -72,11 +91,11 @@ protected:
 	void paintGL();
 	void resizeGL(int,int);
 
-	void mouseMoveEvent(QMouseEvent*);
+    /*void mouseMoveEvent(QMouseEvent*);
     void mousePressEvent(QMouseEvent*);
 	void mouseReleaseEvent(QMouseEvent*);
-    void wheelEvent(QWheelEvent*);
-    void keyPressEvent(QKeyEvent);
+    void wheelEvent(QWheelEvent*);*/
+    void keyPressEvent(QKeyEvent *event);
 
         CGMainWindow *main;
         int oldX,oldY;
