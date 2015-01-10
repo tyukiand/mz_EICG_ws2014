@@ -6,4 +6,4 @@ HEADERS += *.h
 SOURCES += *.cpp 
 
 macx: QMAKE_MAC_SDK = macosx10.9
-unix:!macx: LIBS+= -lGLU
+unix:!macx: LIBS+= -lGLU -lglut

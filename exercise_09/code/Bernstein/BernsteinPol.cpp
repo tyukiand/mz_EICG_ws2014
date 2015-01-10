@@ -31,16 +31,11 @@ CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
     ogl = new BernsteinPol (this,f);
 
 	// Create a menu
-    /*QMenu *file = new QMenu("Draw Methode",this);
-    file->addAction ("&Wireframe", this->ogl, SLOT(drawWireFrame()), Qt::CTRL+Qt::Key_W);
-    file->addAction ("&Flat-Shading",this->ogl,SLOT(flating()),Qt::CTRL+Qt::Key_F ),
-    file->addAction ("&exact Smooth-Shading", this->ogl, SLOT(exactSmoothing()), Qt::CTRL+Qt::Key_S+Qt::Key_E);
-    file->addAction ("&Smooth-Shading", this->ogl, SLOT(smoothing()), Qt::CTRL+Qt::Key_S);
-    file->addAction ("Quit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);*/
+   /* QMenu *file = new QMenu("Degree",this);
+    file->addAction ("&Wireframe", this->ogl, SLOT(), Qt::CTRL+Qt::Key_W);
 
 
-
-    //menuBar()->addMenu(file);
+    menuBar()->addMenu(file);*/
 
 
 	// Put the GL widget inside the frame
@@ -69,8 +64,7 @@ void BernsteinPol::initializeGL() {
     qglClearColor(Qt::white);
 
     zoom = 1.0;
-    n=0;
-    //binomialCoeff=1;
+    n=9;
     t.resize(250);
     for(unsigned int i=0;i<t.size();i++){
         t[i]=(i*1.0)/t.size();
@@ -78,10 +72,6 @@ void BernsteinPol::initializeGL() {
     t.resize(t.size()+1);
     t[t.size()-1]=1;
 
-   /* glEnable(GL_NORMALIZE);
-    glDisable(GL_COLOR_MATERIAL);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
 
     ///Make timer
@@ -151,8 +141,9 @@ void BernsteinPol::paintGL() {
     glVertex2d(0.8,1);
     glVertex2d(0.8,0.98);
 
-    glColor3f(1.0,.0,.0);
+    //glColor3f(1.0,.0,.0);
     for(unsigned int i=0;i<=n;i++){
+        glColor3f(colorCurv[i][0],colorCurv[i][1],colorCurv[i][2]);
         verticesIPolynom(i);
     }
 
@@ -180,12 +171,56 @@ void BernsteinPol::paintGL() {
     glVertex2d(0.6,0.02);
     glVertex2d(0.8,0);
     glVertex2d(0.8,0.02);
-
-
-
-
-
     glEnd();
+
+    char ticks[5][3] ;//{"1","0.8","0.6","0.4","0.2"};
+    strcpy(ticks[0],"1.0");
+    strcpy(ticks[1],"0.8");
+    strcpy(ticks[2],"0.6");
+    strcpy(ticks[3],"0.4");
+    strcpy(ticks[4],"0.2");
+
+    double start=0.99;//count from 1 to 0 in 0.2 steps
+    for(unsigned int i=0;i<5;i++){
+        glPushMatrix();
+        glTranslatef(-0.07, start, 0.0);
+        glScalef(3e-4, 3e-4, 3e-4);
+        glColor3f(0,0,0);
+        unsigned int ticksLen=3;
+        for(unsigned int j=0;j<ticksLen;j++)
+            glutStrokeCharacter(GLUT_STROKE_ROMAN, ticks[i][j]);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(start-0.02,-0.04,  0.0);
+        glScalef(3e-4, 3e-4, 3e-4);
+        glColor3f(0,0,0);
+        for(unsigned int j=0;j<ticksLen;j++)
+            glutStrokeCharacter(GLUT_STROKE_ROMAN, ticks[i][j]);
+        glPopMatrix();
+        start=start-0.2;
+    }
+
+    double down=0.9;
+    for(unsigned int m=0;m<=n;m++){
+        glPushMatrix();
+        glTranslatef(1.1, down, 0.0);
+        glScalef(3e-4, 3e-4, 3e-4);
+        glColor3f(0,0,0);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, 'B');
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, '0'+m);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, '0'+n);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, '(');
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, 'x');
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, ')');
+        glPopMatrix();
+        glBegin(GL_LINES);
+        glColor3f(colorCurv[m][0],colorCurv[m][1],colorCurv[m][2]);
+        glVertex2d(1.25,down);
+        glVertex2d(1.35,down);
+        glEnd();
+        down=down-0.06;
+    }
 
    /* glEnable(GL_LIGHT0);
     GLfloat pos0[]={0,0,-10,0};
@@ -223,7 +258,7 @@ void BernsteinPol::worldCoord(int x, int y, int z, Vector3d &v) {
 	gluUnProject(x,viewport[3]-1-y,z,M,P,viewport,&v[0],&v[1],&v[2]);
 }
 
-void BernsteinPol::mousePressEvent(QMouseEvent *event) {
+/*void BernsteinPol::mousePressEvent(QMouseEvent *event) {
 	oldX = event->x();
     oldY = event->y();
 }
@@ -243,10 +278,54 @@ void BernsteinPol::mouseMoveEvent(QMouseEvent* event) {
 	oldY = event->y();
 
 	updateGL();
+}*/
+
+void BernsteinPol::keyPressEvent(QKeyEvent *event) {
+    switch (event->key()) {
+    case Qt::Key_0:
+        n=0;
+        break;
+
+    case Qt::Key_1:
+        n=1;
+        break;
+
+    case Qt::Key_2:
+        n=2;
+        break;
+
+    case Qt::Key_3:
+        n=3;
+        break;
+
+    case Qt::Key_4:
+        n=4;
+        break;
+
+    case Qt::Key_5:
+        n=5;
+        break;
+
+    case Qt::Key_6:
+        n=6;
+        break;
+
+    case Qt::Key_7:
+        n=7;
+        break;
+
+    case Qt::Key_8:
+        n=8;
+        break;
+
+    case Qt::Key_9:
+        n=9;
+        break;
+    }
+
+   updateGL();
 }
 
-//timer aktualisiert bild damit auswahl menue eintraege ueber tastenkombination strg+...
-//wirkung zeigt ohne nochmal auf das menue zuklicken
 void BernsteinPol::timer(){
     updateGL();
 }
@@ -258,7 +337,7 @@ int main (int argc, char **argv) {
 		qWarning ("This system has no OpenGL support. Exiting.");
 		return 1;
 	}
-
+    glutInit(&argc, argv);
 	CGMainWindow *w = new CGMainWindow(NULL);
 
 	w->show();
