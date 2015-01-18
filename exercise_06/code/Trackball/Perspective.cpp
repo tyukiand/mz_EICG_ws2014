@@ -137,9 +137,9 @@ void CGView::paintGL() {
 
 	glutSolidCube (1.0);
 
-	glLineWidth (3.0);	
-	glColor3d (0,0,1);
-	glutWireCube (1.0);
+    glLineWidth (3.0);
+    glColor3d (0,0,1);
+    glutWireCube (1.0);
 	
 }
 

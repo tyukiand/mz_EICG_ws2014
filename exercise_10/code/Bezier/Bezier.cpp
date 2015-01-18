@@ -126,14 +126,14 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent) 
 
     q_old.set(0.0, 0.0, 0.0, 1.0);
     q_now.set(0.0, 0.0, 0.0, 1.0);
+    zoom = 0.5;
+    center[0]=0.0;
+    center[1]=0.0;
+    center[2]=0.0;
 
-    for (int i = 0; i < 3; ++i) {
-        center[i]=0.0;
-    };
-
-    control_points.push_back (Vector4d(1,0,0,1));
-    control_points.push_back (Vector4d(0,1,0,1));
-    control_points.push_back (Vector4d(0,0,1,1));
+    control_points.push_back (Vector3d(1,0,2));
+    control_points.push_back (Vector3d(0,-0.5,2));
+    control_points.push_back (Vector3d(-0.5,1,2));
     //control_points.push_back (Vector4d(-1,0,0,1));
     //control_points.push_back (Vector4d(0,-1,0,1));
     //control_points.push_back (Vector4d(0,0,-1,1));
@@ -142,7 +142,7 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent) 
 void CGView::initializeGL() 
 {
 	qglClearColor(Qt::white);
-	zoom = 1.0;
+
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -155,7 +155,28 @@ void CGView::initializeGL()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void CGView::opengl_method(const std::vector<Vector4d> &l)
+void CGView::gl_bezier3d(const std::vector<Vector3d> &l)
+{
+    int i,j;
+
+    GLfloat tempoints[l.size()][3];
+
+    for(i=0;i<l.size();++i)
+        for(j=0;j<3;++j)
+            tempoints[i][j]=l[i][j];
+
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, l.size(), &tempoints[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
+
+    glBegin(GL_LINE_STRIP);
+    for (i = 0; i <= 42*zoom; i++)
+        glEvalCoord1f((GLfloat) i/(42.0*zoom));
+    glEnd();
+    glFlush();
+    glDisable(GL_MAP1_VERTEX_3);
+}
+
+void CGView::gl_proj4d(const std::vector<Vector4d> &l)
 {
     int i,j;
 
@@ -173,6 +194,7 @@ void CGView::opengl_method(const std::vector<Vector4d> &l)
         glEvalCoord1f((GLfloat) i/(42.0*zoom));
     glEnd();
     glFlush();
+    glDisable(GL_MAP1_VERTEX_4);
 }
 
 void CGView::paintGL() {
@@ -192,12 +214,35 @@ void CGView::paintGL() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-	glColor3d (0,0,1);
+    glColor3d (0.25,0.5,0.25);
 	glPointSize (1.0);
 	glBegin(GL_LINE_STRIP);
 	for(int i=0;i<(int) control_points.size();i++)
                 glVertex3dv(control_points[i].ptr());
 	glEnd();
+
+    glColor3d (0.25,0.25,0.25);
+    glBegin(GL_LINE_STRIP);
+    double x,y,w;
+    std::vector<Vector4d> proj_points=std::vector<Vector4d>();
+    for(int i=0;i<(int) control_points.size();i++){
+        x=control_points[i].x();
+        y=control_points[i].y();
+        w=control_points[i].z();
+        glVertex3d(x/w,y/w,1);
+        proj_points.push_back (Vector4d(x,y,1*w,w));
+    }
+    glEnd();
+
+    glLineWidth(0.5);
+    glColor3d (0.,0.,0.);
+    for(int i=0;i<(int) control_points.size();i++){
+        glBegin(GL_LINE_STRIP);
+        glVertex3dv(control_points[i].ptr());
+        glVertex3d(0,0,0);
+        glEnd();
+    }
+
 
 	glColor3d (1,0,0);
 	glPointSize (3.0);
@@ -207,7 +252,11 @@ void CGView::paintGL() {
 	glEnd();
 
     glColor3d (0,1,1);
-    opengl_method(control_points);
+    gl_bezier3d(control_points);
+
+    glColor3d (0,1,1);
+    gl_proj4d(proj_points);
+
 
     glLineWidth (3.0);
     glColor3d (0,0,1);
@@ -216,13 +265,34 @@ void CGView::paintGL() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_QUADS);
 
-    glColor3f(0,0,0);
+    glColor4f(105/255.0,105/255.0,105/255.0,0.95);
+
+    glVertex3d( 1, 1,1);
+    glVertex3d(-1, 1,1);
+    glVertex3d(-1,-1,1);
+    glVertex3d( 1,-1,1);
+
+    glVertex3d( 1, 1,1);
+    glVertex3d( 1,-1,1);
+    glVertex3d(-1,-1,1);
+    glVertex3d(-1, 1,1);
+
+    glEnd();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBegin(GL_QUADS);
+
+    glColor4f(0,0,0,1);
 
     glVertex3d( 1, 1,0);
     glVertex3d(-1, 1,0);
     glVertex3d(-1,-1,0);
     glVertex3d( 1,-1,0);
 
+    glVertex3d( 1, 1,0);
+    glVertex3d( 1,-1,0);
+    glVertex3d(-1,-1,0);
+    glVertex3d(-1, 1,0);
 
     glEnd();
 
