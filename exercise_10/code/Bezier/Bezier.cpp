@@ -213,15 +213,16 @@ void CGView::paintGL() {
     glColor3d (0,0,1);
     //glutWireCube (1.0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_QUADS);
 
     glColor3f(0,0,0);
 
-    glVertex3d( 1, 1,-10);
-    glVertex3d( 1,-1,-10);
-    glVertex3d(-1, 1,-10);
-    glVertex3d(-1,-1,-10);
+    glVertex3d( 1, 1,0);
+    glVertex3d(-1, 1,0);
+    glVertex3d(-1,-1,0);
+    glVertex3d( 1,-1,0);
+
 
     glEnd();
 
