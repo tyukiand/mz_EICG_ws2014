@@ -57,6 +57,7 @@ public:
     void worldCoord(int x, int y, int z, Vector3d &v);
     Vector3d min, max, center;
 
+    int select_point;
     std::vector<Vector3d> control_points;
     Quat4d q_old;
     Quat4d q_now;
@@ -68,6 +69,7 @@ public:
 	int fillMode;
     bool rotate;
     bool stuff;
+    void scale(double scale);
 
 public slots:
 
@@ -79,6 +81,7 @@ protected:
 	void paintGL();
 	void resizeGL(int,int);
 
+
 	void mouseMoveEvent(QMouseEvent*);
 	void mousePressEvent(QMouseEvent*);
 	void mouseReleaseEvent(QMouseEvent*);
@@ -87,6 +90,7 @@ protected:
     void gl_bezier3d(const std::vector<Vector3d> &l);
     void gl_proj4d(const std::vector<Vector4d> &l);
 
+    int findCloseVert(int x, int y, double epsPow2, std::vector<Vector3d> coord);
     void mouseToTrackball(int x, int y, int w, int h, Vector3d &v);
     void trackball(Vector3d u, Vector3d v, Quat4d &q);
 
