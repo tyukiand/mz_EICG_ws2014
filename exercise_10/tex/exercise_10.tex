@@ -14,106 +14,23 @@
 
 \noindent\hrulefill
 
-\exercise{1.1}{Text with a bunch of funny formulas}
-
-Let $a\in\Real^3$ arbitrary, and let $[a]_\cross$ denote the matrix that
-corresponds to the cross product with $a$ from the left:
-\[
-  [a]_\cross := \mat{ccc}{
-    0    & -a_3 & a_1 \\
-    a_3  & 0    & -a_2 \\
-    -a_1 & a_2  & 0
-  }.
-\]
-It then holds: 
-\[
-  \exp([a]_\cross) = R_{\frac{a}{\norm{a}}}{\norm{a}},
-\]
-where $R_{z,\phi}$ is the rotation matrix
-around the axis $z$ by the angle $\phi$.
-
-\proof Observe that all powers of $[a]_\cross$ can be 
-expressed in terms of $[a]_\cross$ and $[a]_\cross^2$, 
-more precisely, it holds (by the Grassmann-Identity):
+\exercise{10.3}{Bernstein basis to Monom basis }\\
+$\begin{pmatrix}
+B_0^n(t)\\
+\vdots\\
+B_n^n(t)
+\end{pmatrix} =C\begin{pmatrix}
+1\\t\\t\\t^2\\\vdots\\t^n
+\end{pmatrix}$ with $C_{i,j}=\binom{j}{i}\binom{n}{j}(-1)^{j-i}$
+\begin{equation}
+(a+b)^n=\sum_{k=0}^{n}\binom{n}{k}a^{n-k}b^k \label{binom}
+\end{equation}
 \begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
+	B_i^n(t)&=\sum_{j=0}^{n}C_{i,j}t^j\\&=\sum_{j=0}^{n}\binom{j}{i}\binom{n}{j}(-1)^{j-i}t^j\stackrel{\binom{j}{i}=0\text{ for }  i>j}{=} \sum_{j=i}^{n}\frac{n!j!}{(n-j)!j!(j-i)!}(-1)^{j-i}t^{j-i}t^i\\
+	&=t^i\frac{n!}{i!(n-i)!}\sum_{j=i}^{n}\frac{(n-i)!}{(n-j)!(j-i)!}(-t)^{j-i}(1)^{n-j}\\
+	& \stackrel{j\rightarrow j+i}{=}t^i\binom{n}{i}\sum_{j=0}^{n-i}\frac{(n-i)!}{(n-i-j)!j!}(-t)^{j}(1)^{n-i-j}\\
+	&\stackrel{\ref{binom}}{=} \binom{n}{i}t^i(1-t)^{n-i}
 \end{align*}
-Iteration gives us explicit formulas for all nonnegative powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-We have already shown that the last expression is exactly the 
-rotation matrix $R_{\frac{a}{\norm{a}}}{\norm{a}}$, 
-this concludes the proof.  \hfill\qed
+	
 
-\exercise{1.2}{A funny image}
-Here you can see an example of an image.
-\begin{figure}[htbp]
-  \centering\includegraphics[width=0.5\linewidth]{images/exampleImage.png}
-\end{figure}
-And here is some more text:
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us similar expressions for all positive powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-Blah blah blah...
-
-\exercise{1.3}{Code-examples}
-Here is how one can include formatted code:
-\begin{lstlisting}
-  ...
-  void main(void) {
-    cout << "blah";
-  }
-\end{lstlisting}
-You might also find \verb|\lstinputlisting[firstline=n,lastline=m]| useful.
 \end{document}
