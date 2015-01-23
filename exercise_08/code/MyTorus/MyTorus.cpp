@@ -402,10 +402,9 @@ void MyTorus::initializeGL() {
 
 
     ///Make timer
-  QTimer *timer = new QTimer(this);
-  connect(timer, SIGNAL(timeout()), this, SLOT(timer()));
-  timer->start(100); /// also 100 mal pro sekunde!
-
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(timer()));
+    timer->start(100); /// also 100 mal pro sekunde!
 }
 
 void MyTorus::paintGL() {
@@ -447,14 +446,14 @@ void MyTorus::resizeGL(int width, int height) {
 }
 
 void MyTorus::worldCoord(int x, int y, int z, Vector3d &v) {
-#if RETINA_DISPLAY
-      x *= 2;
-      y *= 2;
-#endif
+    #if RETINA_DISPLAY
+        x *= 2;
+        y *= 2;
+    #endif
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT,viewport);
-        std::cout << "x: "<< x << " - y: " << y << " - z: " << z<< std::endl; 
-        std::cout << viewport[0] << " " << viewport[1] << " " << viewport[2] << " " << viewport[3] << std::endl; 
+    std::cout << "x: "<< x << " - y: " << y << " - z: " << z<< std::endl;
+    std::cout << viewport[0] << " " << viewport[1] << " " << viewport[2] << " " << viewport[3] << std::endl;
 	GLdouble M[16], P[16];
 	glGetDoublev(GL_PROJECTION_MATRIX,P);
 	glGetDoublev(GL_MODELVIEW_MATRIX,M);

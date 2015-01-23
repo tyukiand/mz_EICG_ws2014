@@ -49,6 +49,7 @@ void glPrintErrors(const char* as_Function)
     if (lb_ErrorFound) exit(0);
 }
 
+
 CGMainWindow::CGMainWindow (QWidget* parent, Qt::WindowFlags flags)
 : QMainWindow (parent, flags) {
 	resize (604, 614);
@@ -90,16 +91,9 @@ void CGMainWindow::keyPressEvent(QKeyEvent* event) {
 	switch(event->key()) {
 	case Qt::Key_I: std::cout << "I" << std::flush; break;
 	case Qt::Key_M: std::cout << "M" << std::flush; break;
-    case Qt::Key_Minus: ogl->scale(0.9);
-    case Qt::Key_Plus: ogl->scale(1.025);
 	}
 
 	ogl->updateGL();
-}
-
-void CGView::scale(double scale){
-    if (select_point>=0)
-        control_points[select_point][2]*=scale;
 }
 
 CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent) {
@@ -111,16 +105,16 @@ CGView::CGView (CGMainWindow *mainwindow,QWidget* parent ) : QGLWidget (parent) 
     center[0]=0.0;
     center[1]=0.0;
     center[2]=0.0;
-    select_point=-1;
 
-    control_points.push_back (Vector3d(1,0,2));
-    control_points.push_back (Vector3d(0,-0.5,2));
-    control_points.push_back (Vector3d(-0.5,1,2));
+    control_points.push_back (Vector4d(1,0,0,1));
+    control_points.push_back (Vector4d(1,1,0,1));
+    control_points.push_back (Vector4d(0,2,0,2));
 }
 
 void CGView::initializeGL() 
 {
 	qglClearColor(Qt::white);
+
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -133,41 +127,18 @@ void CGView::initializeGL()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void CGView::gl_bezier3d(const std::vector<Vector3d> &l)
-{
-    int i,j;
-
-    GLfloat tempoints[l.size()][3];
-
-    for(i=0;i<l.size();++i)
-        for(j=0;j<3;++j)
-            tempoints[i][j]=l[i][j];
-
-    glEnable(GL_MAP1_VERTEX_3);
-    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, l.size(), &tempoints[0][0]);
-
-    glBegin(GL_LINE_STRIP);
-    for (i = 0; i <= 42*zoom; i++)
-        glEvalCoord1f((GLfloat) i/(42.0*zoom));
-    glEnd();
-    glFlush();
-    glDisable(GL_MAP1_VERTEX_3);
-}
-
 void CGView::gl_proj4d(const std::vector<Vector4d> &l)
 {
     int i,j;
 
     GLfloat tempoints[l.size()][4];
 
-    for(i=0;i<l.size();++i){
-        tempoints[i][0]=l[i].x();
-        tempoints[i][1]=l[i].y();
-        tempoints[i][2]=l[i].z();
-        tempoints[i][3]=l[i].w();
-    }
-    glEnable(GL_MAP1_VERTEX_4);
+    for(i=0;i<l.size();++i)
+        for(j=0;j<4;++j)
+            tempoints[i][j]=l[i][j];
+
     glMap1f(GL_MAP1_VERTEX_4, 0.0, 1.0, 4, l.size(), &tempoints[0][0]);
+    glEnable(GL_MAP1_VERTEX_4);
 
     glBegin(GL_LINE_STRIP);
     for (i = 0; i <= 42*zoom; i++)
@@ -194,96 +165,18 @@ void CGView::paintGL() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glColor3d (0.25,0.5,0.25);
-	glPointSize (1.0);
-	glBegin(GL_LINE_STRIP);
+    gl_proj4d(control_points);
+
+
+	glColor3d (1,0,0);
+	glPointSize (3.0);
+	glBegin(GL_POINTS);
 	for(int i=0;i<(int) control_points.size();i++)
                 glVertex3dv(control_points[i].ptr());
 	glEnd();
 
-    glColor3d (0.25,0.25,0.25);
-    glBegin(GL_LINE_STRIP);
-    double x,y,w;
-    std::vector<Vector4d> proj_points=std::vector<Vector4d>();
-    for(int i=0;i<(int) control_points.size();i++){
-        x=control_points[i].x();
-        y=control_points[i].y();
-        w=control_points[i].z();
-        glVertex3d(x,y,1);
-        proj_points.push_back (Vector4d(x,y,w,w));
-        std::cout << x <<","<<y<<","<<w<<std::endl;
-    }
-    glEnd();
-
-    glLineWidth(0.5);
-    glColor3d (0.,0.,0.);
-    for(int i=0;i<(int) control_points.size();i++){
-        glBegin(GL_LINE_STRIP);
-        glVertex3dv(control_points[i].ptr());
-        glVertex3d(0,0,0);
-        glEnd();
-    }
-
-
-
-
     glColor3d (0,1,1);
-    gl_bezier3d(control_points);
-
-    glColor3d (0,1,1);
-    gl_proj4d(proj_points);
-
-
-    glColor3d (1,0,0);
-    glPointSize (5.0);
-    glBegin(GL_POINTS);
-    for(int i=0;i<(int) control_points.size();i++)
-        if (i!=select_point)
-            glVertex3dv(control_points[i].ptr());
-    glEnd();
-
-    if (select_point>=0){
-        glColor3d (1,0.5,0.5);
-        glPointSize (7.0);
-        glBegin(GL_POINTS);
-        glVertex3dv(control_points[select_point].ptr());
-        glEnd();
-    }
-
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBegin(GL_QUADS);
-
-    glColor4f(105/255.0,105/255.0,105/255.0,0.95);
-
-    glVertex3d( 1, 1,1);
-    glVertex3d(-1, 1,1);
-    glVertex3d(-1,-1,1);
-    glVertex3d( 1,-1,1);
-
-    glVertex3d( 1, 1,1);
-    glVertex3d( 1,-1,1);
-    glVertex3d(-1,-1,1);
-    glVertex3d(-1, 1,1);
-
-    glEnd();
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_QUADS);
-
-    glColor4f(0,0,0,1);
-
-    glVertex3d( 1, 1,0);
-    glVertex3d(-1, 1,0);
-    glVertex3d(-1,-1,0);
-    glVertex3d( 1,-1,0);
-
-    glVertex3d( 1, 1,0);
-    glVertex3d( 1,-1,0);
-    glVertex3d(-1,-1,0);
-    glVertex3d(-1, 1,0);
-
-    glEnd();
+    gl_proj4d(control_points);
 
 }
 
@@ -322,15 +215,36 @@ void CGView::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::RightButton){
         rotate=1;
     }
-    if (event->button() == Qt::LeftButton){
-        double epsPow2 = 0.001;
-        int alternativeSelectedVertex = findCloseVert(oldX,oldY,epsPow2,control_points);
-        std::cout << "Selected Vertex: " << alternativeSelectedVertex << std::endl;
-        if (alternativeSelectedVertex >= 0) {
-          select_point = alternativeSelectedVertex;
-          update();
-        }
-    }
+
+//    //worldCoord(event->x(),event->y(),dx,dy);
+//    //clickedX=dx+centerX;
+//    //clickedY=dy+centerY;
+//    //pointMoving=nearPoint(clickedX,clickedY);
+
+
+//    if (pointMoving==-1){
+//        Vector4d lp;
+//        Vector4d point=Vector4d(dx,dy,0.0,0.0);
+//        //projToLine(point,lp);
+//        if ((lp-point).length()<(ep/zoom)){
+//            control_points.push_back(lp);
+//            std::cout << "Dist(" << (lp-point).length() <<")" << std::endl;
+//            std::cout << "Added(" << lp[0]<<','<< lp[1] <<")" << std::endl;
+//        }
+//    } else {
+//        clickedX=control_points[pointMoving][0];
+//        clickedY=control_points[pointMoving][1];
+//    }
+
+//    if (event->button() == Qt::RightButton)
+//        control_points.erase(control_points.begin()+pointMoving);
+
+//    update();
+
+
+//	std::cout << "Mouse pressed at (" << dx << "," << dy <<")" << std::endl;
+//    std::cout << "Mouse pressed at (" << clickedX << "," << clickedY <<")" << std::endl;
+//    std::cout << "Picked(" << pointMoving <<")" << std::endl;
 }
 
 void CGView::mouseReleaseEvent (QMouseEvent* event) {
@@ -380,41 +294,6 @@ void CGView::mouseMoveEvent (QMouseEvent* event) {
 	if (event->button() == Qt::LeftButton)
         update();
 
-}
-
-int CGView::findCloseVert(int x, int y, double epsPow2, std::vector<Vector3d> coord)
-{
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT,viewport);
-    Vector3d mouseObjectCoords;
-    worldCoord(x, y, 0, mouseObjectCoords);
-
-    Vector3d someOtherPointUnderTheMouse;
-    worldCoord(x, y, -420, someOtherPointUnderTheMouse);
-
-
-    Vector3d direction = mouseObjectCoords - someOtherPointUnderTheMouse;
-    direction.normalize();
-    Vector3d projection;
-    Vector3d difference;
-
-
-    int i;
-    double relativeDist;
-    double minRelativeDist = + 1.0 / 0.0;
-    int bestIndex = -1;
-    for (i = 0; i < coord.size(); i++) {
-        relativeDist = direction.dot(coord[i] - mouseObjectCoords);
-        projection = mouseObjectCoords + direction * relativeDist;
-        difference = coord[i] - projection;
-        if (difference.lengthSquared() <= epsPow2) {
-            if (relativeDist < minRelativeDist) {
-                minRelativeDist = relativeDist;
-                bestIndex = i;
-            }
-        }
-    }
-    return bestIndex;
 }
 
 void CGView::mouseToTrackball(int x, int y, int w, int h, Vector3d &v) {

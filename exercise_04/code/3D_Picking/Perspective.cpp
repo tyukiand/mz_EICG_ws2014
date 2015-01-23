@@ -225,20 +225,6 @@ int CGView::findCloseVert(int x, int y, double epsPow2)
 	glGetIntegerv(GL_VIEWPORT,viewport);
     Vector3d mouseObjectCoords;
     worldCoord(x, y, 0, mouseObjectCoords);
-    /* OMG? 
-       all this doesn't make any sense at all because, ironically,
-       we do _NOT_ use any "perspective" in the "Perspective" program.
-       All these computations are futile, because the eye is in the 
-       infinity... Whatever, left it there, maybe we add "Perspective"
-       later...
-    Vector3d eyeObjectCoords;
-    worldCoord(
-        (viewport[0] + viewport[2]) / 2.0,
-        viewport[3] - 1 - (viewport[1] + viewport[3]) / 2.0,
-        0.5,
-        eyeObjectCoords
-    );
-    */
 
     Vector3d someOtherPointUnderTheMouse;
     worldCoord(x, y, -42, someOtherPointUnderTheMouse);
