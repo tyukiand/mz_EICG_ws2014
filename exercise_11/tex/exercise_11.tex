@@ -14,106 +14,16 @@
 
 \noindent\hrulefill
 
-\exercise{1.1}{Text with a bunch of funny formulas}
-
-Let $a\in\Real^3$ arbitrary, and let $[a]_\cross$ denote the matrix that
-corresponds to the cross product with $a$ from the left:
-\[
-  [a]_\cross := \mat{ccc}{
-    0    & -a_3 & a_1 \\
-    a_3  & 0    & -a_2 \\
-    -a_1 & a_2  & 0
-  }.
-\]
-It then holds: 
-\[
-  \exp([a]_\cross) = R_{\frac{a}{\norm{a}}}{\norm{a}},
-\]
-where $R_{z,\phi}$ is the rotation matrix
-around the axis $z$ by the angle $\phi$.
-
-\proof Observe that all powers of $[a]_\cross$ can be 
-expressed in terms of $[a]_\cross$ and $[a]_\cross^2$, 
-more precisely, it holds (by the Grassmann-Identity):
+\exercise{11.1}{Normal transformation}
+\begin{itemize}
+\item[a)]
 \begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
+	n'\cdot t'=(n')^T t&\stackrel{!}{=}n^Tt=n\cdot t\\
+	n^TG^TMt&\stackrel{!}{=}n^Tt\\
+	\Rightarrow G^TM&=\mathbbm{1}\\
+	G^T&=M^{-1}\\
+	\Rightarrow \hspace*{6mm} G\hspace*{2.5mm}&=\left(M^{-1} \right)^T 
 \end{align*}
-Iteration gives us explicit formulas for all nonnegative powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-We have already shown that the last expression is exactly the 
-rotation matrix $R_{\frac{a}{\norm{a}}}{\norm{a}}$, 
-this concludes the proof.  \hfill\qed
+\end{itemize}
 
-\exercise{1.2}{A funny image}
-Here you can see an example of an image.
-\begin{figure}[htbp]
-  \centering\includegraphics[width=0.5\linewidth]{images/exampleImage.png}
-\end{figure}
-And here is some more text:
-\begin{align*}
-  [a]_\cross^2 &= aa^T - \norm{a}^2I  \\
-  [a]_\cross^3 &= -\norm{a}^2[a]_\cross.
-\end{align*}
-Iteration gives us similar expressions for all positive powers:
-\[
-  [a]_\cross^k = \begin{cases}
-    I & \textrm{ for } k = 0 \\
-    \rPar{(-1)\norm{a}^2}^\frac{k-1}{2}[a]_\cross & \textrm{ for } k \textrm{ odd} \\
-    \rPar{-\norm{a}^2}^{\frac{k}{2} - 1}[a]_\cross^2 & 
-      \textrm{ for } k \textrm{ even and positive }
-  \end{cases}.
-\]
-Now we start with the series for $\exp$, sort all the terms by 
-their matrix-component, and compare the resulting series with $\sin$ and $\cos$:
-\begin{align*}
-  \exp([a]_\cross) 
-    &= \sum_{k=0}^\infty \frac{[a]_\cross^k}{k!}\\
-    &= I + \rPar{
-         \sum_{k = 1, k \textrm{ odd}}^\infty
-         \frac{(-1)^{\frac{k-1}{2}}\norm{a}^{k}}{k!}
-       }\sPar{\frac{a}{\norm{a}}}_\cross
-       + 
-      \rPar{
-        \sum_{k = 2, k \textrm{ even}}^\infty
-        \frac{-(-1)^\frac{k}{2}\norm{a}^k}{k!}
-      }\sPar{\frac{a}{\norm{a}}}_\cross^2 \\
-     &= I + \sin(\norm{a})\sPar{\frac{a}{\norm{a}}}_\cross + 
-        (1 - \cos(\norm{a}))\sPar{\frac{a}{\norm{a}}}_\cross^2.
-\end{align*}
-Blah blah blah...
-
-\exercise{1.3}{Code-examples}
-Here is how one can include formatted code:
-\begin{lstlisting}
-  ...
-  void main(void) {
-    cout << "blah";
-  }
-\end{lstlisting}
-You might also find \verb|\lstinputlisting[firstline=n,lastline=m]| useful.
 \end{document}
