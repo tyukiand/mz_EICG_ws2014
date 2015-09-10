@@ -14,6 +14,37 @@
 
 \noindent\hrulefill
 
+\exercise{9.3}{De Casteljau algorithm}
+Be 
+\begin{align}
+	P^{0}_{i}=\sum_{j=0}^{0}P^{0}_{i+j}\binom{0}{j}t^j(1-t)^{0-j}=P^{0}_{i}
+\end{align}
+An we could use the recursive definition
+\begin{align}
+	P^{r}_{i}=(1-t)P^{r-1}_{i}+tP^{r-1}_{i+1}
+\end{align}
+To start an induction assuming that
+\begin{align}
+	P^{k}_{i}=\sum_{j=0}^{k}P^{0}_{i+j}\binom{k}{j}t^j(1-t)^{k-j}
+\end{align}
+is valid we need to show that this form is valid for $k+1$.
+\begin{align}
+	P^{k+1}_{i}
+	& =(1-t)P^{k}_{i}+tP^{k}_{i+1}\\
+	& =\sum_{j=0}^{k}P^{0}_{i+j}\binom{k}{j}t^j(1-t)^{k+1-j}
+	+\sum_{j=0}^{k}P^{0}_{i+1+j}\binom{k}{j}t^{j+1}(1-t)^{k-j}\\
+	& =P^{0}_{i}\binom{k}{0}(1-t)^{k+1}+P^{0}_{i+k+1}\binom{k}{k}t^{k+1}
+	+\sum_{j=1}^{k}P^{0}_{i+j}\left(\binom{k}{j}+\binom{k}{j-1}\right)t^j(1-t)^{k+1-j}\\
+	& =P^{0}_{i}\binom{k}{0}(1-t)^{k+1}+P^{0}_{i+k+1}\binom{k}{k}t^{k+1}
+	+\sum_{j=1}^{k}P^{0}_{i+j}\binom{k+1}{j}t^j(1-t)^{k+1-j}\\
+	& =\sum_{j=0}^{k+1}P^{0}_{i+j}\binom{k+1}{j}t^j(1-t)^{k+1-j}	
+\end{align}
+Using that
+\begin{align}
+\binom{k}{j}+\binom{k}{j-1}&=\frac{k!}{(k-j)!j!}\frac{k!}{(k+1-j)!(j-1)!}\\
+&=\frac{k!(j+k+1-j)}{(k+1-j)!j!}=\binom{k+1}{j}
+\end{align}
+
 \exercise{9.4}{Tangent}
 	\\\begin{align*}
 		x(t)=&\sum_{i=0}^{n}B_i^n(t)P_i\\	%\hspace{10mm}
@@ -32,8 +63,8 @@
 		\stackrel{.}{x}(0)=&\stackrel{-}{P}_0=n(P_1-P_0)\\
 		\stackrel{.}{x}(1)=&\stackrel{-}{P}_{n'}=n(P_n-P_{n-1})			
 	\end{align*}
-	Tangent in $x(0)$: $g(s)~=P_0+\stackrel{.}{x}(0)*l$\\
-	Tangent in $x(1)$: $g'(s)=P_n+\stackrel{.}{x}(1)*l$\\
+	Tangent in $x(0)$: $g(s)~=P_0+\stackrel{.}{x}(0)l$\\
+	Tangent in $x(1)$: $g'(s)=P_n+\stackrel{.}{x}(1)l$\\
 	$P_1=g(\tfrac{1}{n})$ $\Rightarrow$ Tangent in $x(0)$ points in direction of $P_1-P_0$\\
 	$P_{n-1}=g'(-\tfrac{1}{n})$ $\Rightarrow$ Tangent in $x(1)$ points in direction of $P_{n-1}-P_n$
 

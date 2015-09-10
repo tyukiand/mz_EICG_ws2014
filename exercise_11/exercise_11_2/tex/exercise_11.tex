@@ -8,7 +8,7 @@
 \begin{document}
 \noindent{\footnotesize Computer Graphics 2014/15, Exercise 11} 
 \hfill 
-{\footnotesize \input{./currentDate.txt}}
+%{\footnotesize \input{./currentDate.txt}}
 \newline
 {\footnotesize \input{../../NAMES.txt}}
 
@@ -25,7 +25,7 @@
 	\Rightarrow \hspace*{6mm} G\hspace*{2.5mm}&=\left(M^{-1} \right)^T 
 \end{align*}
 \item[b)]
-	The normal must be pointing outside
+	The normal has to point outside, but if some components are inverted we could not assume that this is conserved.
 \item[c)]
 	View the ellipsoid as a dragged unit ball:\\
 	\begin{itemize}
@@ -59,22 +59,32 @@
 														\end{pmatrix}$\\						
 \end{itemize}
 \exercise{11.2}{Cox-De Boor algorithm}
+\\Out of the Lecture, the definition of $B_{i,j}(t)$
+\begin{equation}
+\label{db}
+B_{i,j}(t)=\tfrac{t-t_i}{t_{i+j}-t_i}B_{i,j-1}(t)+\tfrac{t_{i+j}-t}{t_{i+j}-t_i}B_{i,j-1}(t)
+\end{equation}
+and $B_{i,0}(t)=\delta_{i,l}$ we could follow that $B_{i,j}(t)=0$ if $i>l$ or $i+j<l$. 
+Now lets show that 
+\begin{equation}
+\sum_{i=l-d+k}^{l}B_{i,d-k}(t)p_i^k\stackrel{!}{=}\sum_{i=l-d+k+1}^{l}B_{i,d-k-1}(t)p_i^{k+1}
+\end{equation}
+We start using \ref{db}
 \begin{align}
-	\label{pld}
-	p_l^d&=(1-\alpha_l^d)P_{l-1}^{d-1}+\alpha_l^dP_l^d-1\nonumber\\
-	&=(1-\frac{t-t_l}{t_{l+1}-t_l})P_{l-1}^{d-1}+\frac{t-t_l}{t_{l+1}-t_l}P_{l}^{d-1}\\
-	&=\frac{t_{l+1}-t}{t_{l+1}-t_l})P_{l-1}^{d-1}+\frac{t-t_l}{t_{l+1}-t_l}P_{l}^{d-1}\nonumber
-\end{align}\\
-\begin{align*}
-	x(t)&=\sum_{i=l-d}^{l}B_{i,d}(t)p_i^0=\sum_{i=l-d}^{l} \left( \frac{t-t_i}{t_{i+d}-t_i} B_{i,d-1}(t)+ \frac{t_{i+d+1}-t}{t_{i+d+1}} -t_{i+1}B_{i+1,d-1}(t) 	\right) p_i^0\\
-	&=\sum_{i=l-d}^{l}p_i^0\frac{t-t_i}{t_{i+d}-t_i}B_{i,d-1}(t)+\sum_{i=l-d+1}^{l+1}\frac{t_{i+d}-t}{t_{i+d}-t_i}B_{i,d-1}(t)p_{i-1}^0	\\
-	&=p_{l-d}^0\frac{t-t_{l-d}}{t_{l-1}-t_{l-d}} \underbrace{B_{l-d,d-1}(t)}_{\substack{0}}+\sum_{i=l-d+1}^{l}B_{i,d-1}(t)\left( p_{i-1}^0\frac{t_{i+d}-t}{t_{i+d}-t_i}+p_i^0\frac{t-t_i}{t_{i+d}-t_i}\right) \\&~~~+\frac{t_{l+d+1}-t}{t_{l+d+1}-t_{l+1}}\underbrace{B_{l+1,d-1}(t)}_{\substack{0}}p_l^0
-\end{align*}\\
-\begin{align*}
-	&\sum_{i=l-d+k}^{l}B_{i,d-k}(t)p_i^k\stackrel{!}{=}\sum_{i=l-d+k+1}^{l}B_{i,d-k-1}(t)p_i^{k+1}\\
+	\sum_{i=l-d+k}^{l}B_{i,d-k}(t)p_i^k
 	&=\sum_{i=l-d+k}^{l}\left( \frac{t-t_i}{t_{i+d-k}-t_i}B_{i,d-k-1}(t)+\frac{t_{i+d-k+1}-t}{t_{i+d-k+1}-t_{i+1}}B_{i+1,d-k-1}(t)\right)p_i^k\\
-	&=\sum_{i=l-d+k+1}^{l}B_{i,d-k-1}(t)\underbrace{\left( \frac{t-t_i}{t_{i+d-k}-t_i}p_i^k+\frac{t_{i+d-k}-t}{t_{i+d-k}-t_i}p_{i-1}^k\right)  }_{\substack{p_i^{k+1}}}
-\end{align*}
+	&=\sum_{i=l-d+k+1}^{l}B_{i,d-k-1}(t)\underbrace{\left( \frac{t-t_i}{t_{i+d-k}-t_i}p_i^k+\frac{t_{i+d-k}-t}{t_{i+d-k}-t_i}p_{i-1}^k\right)  }_{\substack{p_i^{k+1}}}\\
+	&+\frac{t-t_{l-d+k}}{t_{l}-t_{l-d+k}}
+	\underbrace{B_{l-d+k,d-k-1}}_{=0\ \forall d,k}(t)p_{l-d+k}^k+
+	\frac{t_{l+d-k+1}-t}{t_{l+d-k+1}-t_{l+1}}
+	\underbrace{B_{l+1,d-k-1}(t)}_{=0\ \forall d,k}p_l^k\\
+	&=\sum_{i=l-d+k+1}^{l}B_{i,d-k-1}(t)p_i^{k+1}
+\end{align}
+We now insert $k=0$ and $k=d$ and get the expected formular by iteration over all $0<k<d$ as
+\begin{equation}
+x(t)=\sum_{i=l-d}^{l}B_{i,d}(t)p_i^0=...=\sum_{i=l}^{l}B_{i,0}(t)p_i^d=B_{l,0}(t)p_l^d=p_l^d
+\end{equation}
+
 
 
 
